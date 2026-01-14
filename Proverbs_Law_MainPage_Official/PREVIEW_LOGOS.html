@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProVerBs Logo Preview - Rotating Logos Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1200px;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .logo-container {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            height: 150px;
+        }
+        
+        .rotating-logo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: absolute;
+            transition: opacity 1s ease-in-out;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+        }
+        
+        .brain-badge {
+            display: inline-block;
+            background: #ff6b6b;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 10px 5px;
+            font-size: 0.9rem;
+        }
+        
+        .info-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 30px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .status-indicator {
+            font-size: 1.2rem;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(76, 175, 80, 0.2);
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+        }
+        
+        .rotation-timer {
+            font-size: 1.5rem;
+            margin: 20px 0;
+            font-weight: bold;
+            color: #ffeb3b;
+        }
+        
+        .feature-list {
+            text-align: left;
+            display: inline-block;
+            margin: 20px auto;
+        }
+        
+        .feature-list li {
+            margin: 10px 0;
+            font-size: 1.1rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin: 10px;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .note {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-section">
+            <div class="logo-container">
+                <img src="assets/logo_1.jpg" class="rotating-logo" id="logo1" alt="ProVerBs Logo 1" style="opacity: 1;">
+                <img src="assets/logo_2.jpg" class="rotating-logo" id="logo2" alt="ProVerBs Logo 2" style="opacity: 0;">
+                <img src="assets/logo_3.jpg" class="rotating-logo" id="logo3" alt="ProVerBs Logo 3" style="opacity: 0;">
+            </div>
+            <h1>⚖️ ProVerBs Ultimate Legal AI Brain</h1>
+            <p class="subtitle">Powered by Pro'VerBs™ & ADAPPT-I™ Technology</p>
+            <div>
+                <span class="brain-badge">🧠 100+ Reasoning Protocols</span>
+                <span class="brain-badge">🤖 6 AI Models</span>
+                <span class="brain-badge">⚖️ 7 Legal Modes</span>
+                <span class="brain-badge">🎙️ Voice Cloning</span>
+            </div>
+            <p class="note">
+                Chain-of-Thought • Self-Consistency • Tree-of-Thoughts • ReAct • Reflexion • RAG<br>
+                Quantum Reasoning • Multi-Agent • Voice Cloning • Audio Processing
+            </p>
+        </div>
+        
+        <div class="info-section">
+            <div class="status-indicator">
+                ✅ <strong>Logos Successfully Integrated!</strong>
+            </div>
+            
+            <div class="rotation-timer">
+                Next logo change in: <span id="timer">60</span> seconds
+            </div>
+            
+            <h2>🎨 Logo Rotation Features</h2>
+            <ul class="feature-list">
+                <li>✅ 3 Professional logos rotating every 60 seconds</li>
+                <li>✅ Smooth fade transitions (1 second duration)</li>
+                <li>✅ Circular design with elegant white border</li>
+                <li>✅ Professional shadow effects</li>
+                <li>✅ Fully responsive design</li>
+                <li>✅ Works on all modern browsers</li>
+            </ul>
+            
+            <h3 style="margin-top: 30px;">📁 Logo Files Installed</h3>
+            <p style="margin: 15px 0;">
+                <strong>Location:</strong> ProVerbS_LaW_mAiN_PAgE/assets/<br>
+                • logo_1.jpg (65.20 KB)<br>
+                • logo_2.jpg (128.21 KB)<br>
+                • logo_3.jpg (231.14 KB)<br>
+                • logo_eagle.svg (3.54 KB)
+            </p>
+            
+            <div style="margin-top: 30px;">
+                <a href="#" class="btn" onclick="alert('Run: python app.py'); return false;">🚀 Start Main App</a>
+                <a href="#" class="btn" onclick="alert('Run: python integrated_chatbot_with_logos.py'); return false;">🎨 Start Logo Version</a>
+            </div>
+            
+            <p style="margin-top: 30px; font-size: 0.9rem; opacity: 0.8;">
+                📝 This is a preview showing how your logos will appear in the actual Gradio application.<br>
+                The logos rotate automatically every 60 seconds with smooth transitions.
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        // Logo rotation script
+        (function() {
+            const logos = ['logo1', 'logo2', 'logo3'];
+            let currentIndex = 0;
+            let secondsRemaining = 60;
+            
+            function rotateLogo() {
+                logos.forEach((id, index) => {
+                    const logo = document.getElementById(id);
+                    if (logo) {
+                        logo.style.opacity = index === currentIndex ? '1' : '0';
+                    }
+                });
+                currentIndex = (currentIndex + 1) % logos.length;
+                secondsRemaining = 60;
+            }
+            
+            // Update timer display
+            function updateTimer() {
+                document.getElementById('timer').textContent = secondsRemaining;
+                secondsRemaining--;
+                
+                if (secondsRemaining < 0) {
+                    rotateLogo();
+                }
+            }
+            
+            // Start rotation and timer
+            setInterval(rotateLogo, 60000);
+            setInterval(updateTimer, 1000);
+        })();
+    </script>
+</body>
+</html>
