@@ -1,0 +1,19 @@
+Deployment Summary
+
+Project ID: proverbs-law-app-2aaa711a
+Application Code: /home/soldav7890/Proverbs_Law_MainPage_Official
+
+To deploy the application, you need to perform the following steps:
+
+1. Enable billing for the project `proverbs-law-app-2aaa711a` in the Google Cloud Console: https://console.cloud.google.com/billing
+
+2. Enable the following APIs for the project:
+   - artifactregistry.googleapis.com
+   - cloudbuild.googleapis.com
+   - run.googleapis.com
+
+   You can enable these APIs by running the following command:
+   gcloud services enable artifactregistry.googleapis.com cloudbuild.googleapis.com run.googleapis.com --project=proverbs-law-app-2aaa711a
+
+3. After enabling billing and the APIs, run the following command from the /home/soldav7890/Proverbs_Law_MainPage_Official directory to deploy the application:
+   gcloud run deploy proverbs-law-mainpage --source . --region us-central1 --allow-unauthenticated

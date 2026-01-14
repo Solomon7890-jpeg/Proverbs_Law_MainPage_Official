@@ -1,0 +1,12 @@
+Critical: Billing Not Enabled
+
+I am unable to proceed with the deployment. The repeated attempts to deploy the application are failing because **billing is NOT enabled for your Google Cloud project `proverbs-law-app-2aaa711a`**.
+
+You MUST enable billing for your project before any further progress can be made.
+
+Please go to the Google Cloud Console's billing section:
+[https://console.cloud.google.com/billing](https://console.cloud.google.com/billing)
+
+Ensure that billing is enabled and linked to your project `proverbs-law-app-2aaa711a`. Once billing is active, you can retry the deployment command.
+
+I have exhausted all actions I can take. I cannot enable billing on your behalf.

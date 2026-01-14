@@ -1,0 +1,21 @@
+Deployment Error - Billing Not Enabled
+
+Despite attempts to deploy, the process continues to fail because billing is NOT enabled for your Google Cloud project (`proverbs-law-app-2aaa711a`).
+
+**You MUST enable billing before you can deploy any services to Cloud Run or enable the necessary APIs.**
+
+Please follow these steps:
+
+1.  **Enable Billing:** Go to the Google Cloud Console's billing section: [https://console.cloud.google.com/billing](https://console.cloud.google.com/billing) and ensure billing is enabled and linked to your project `proverbs-law-app-2aaa711a`.
+
+2.  **Enable APIs (if not already done):** If you haven't already, ensure these APIs are enabled. They will only fully activate once billing is active.
+    *   **Cloud Run Admin API:** [https://console.cloud.google.com/apis/library/run.googleapis.com](https://console.cloud.google.com/apis/library/run.googleapis.com)
+    *   **Cloud Build API:** [https://console.cloud.google.com/apis/library/cloudbuild.googleapis.com](https://console.cloud.google.com/apis/library/cloudbuild.googleapis.com)
+    *   **Artifact Registry API:** [https://console.cloud.google.com/apis/library/artifactregistry.googleapis.com](https://console.cloud.google.com/apis/library/artifactregistry.googleapis.com)
+    *   Alternatively, use the gcloud command: `gcloud services enable artifactregistry.googleapis.com cloudbuild.googleapis.com run.googleapis.com --project=proverbs-law-app-2aaa711a`
+
+Once billing is confirmed and APIs are enabled, you can retry the deployment using the command:
+
+`gcloud run deploy proverbs-law-mainpage --source . --region us-central1 --allow-unauthenticated`
+
+I cannot proceed until billing is enabled.

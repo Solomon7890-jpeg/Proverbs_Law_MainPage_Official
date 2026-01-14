@@ -1,0 +1,25 @@
+To enable the necessary APIs for your Google Cloud project, you have two main options:
+
+**Option 1: Using the Google Cloud Console (Web Interface)**
+
+1.  Go to the Google Cloud Console: [https://console.cloud.google.com/](https://console.cloud.google.com/)
+2.  Make sure you have selected the correct project: `proverbs-law-app-2aaa711a`
+3.  Navigate to the "APIs & Services" -> "Enabled APIs & Services" page, or use these direct links:
+    *   **Cloud Run Admin API:** [https://console.cloud.google.com/apis/library/run.googleapis.com](https://console.cloud.google.com/apis/library/run.googleapis.com)
+    *   **Cloud Build API:** [https://console.cloud.google.com/apis/library/cloudbuild.googleapis.com](https://console.cloud.google.com/apis/library/cloudbuild.googleapis.com)
+    *   **Artifact Registry API:** [https://console.cloud.google.com/apis/library/artifactregistry.googleapis.com](https://console.cloud.google.com/apis/library/artifactregistry.googleapis.com)
+4.  On each page, click the "ENABLE" button to activate the API for your project.
+
+**Option 2: Using the `gcloud` Command-Line Tool**
+
+You can enable all three APIs with a single command in your Cloud Shell or local terminal (after authenticating `gcloud`):
+
+```bash
+gcloud services enable artifactregistry.googleapis.com cloudbuild.googleapis.com run.googleapis.com --project=proverbs-law-app-2aaa711a
+```
+
+After enabling these APIs and ensuring billing is enabled for your project, you can then retry the deployment using the command:
+
+```bash
+gcloud run deploy proverbs-law-mainpage --source . --region us-central1 --allow-unauthenticated
+```

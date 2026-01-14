@@ -1,0 +1,64 @@
+╔══════════════════════════════════════════════════════════════╗
+║     MANUAL DEPLOYMENT TO HUGGING FACE - STEP BY STEP        ║
+╚══════════════════════════════════════════════════════════════╝
+
+YOUR SPACE: Solomon7890/ProVerbS_LaW_mAiN_PAgE
+
+
+📋 QUICK STEPS:
+================
+
+1. RUN THE HELPER SCRIPT:
+   • Double-click: DEPLOY_HELPER.bat
+   • This will copy app.py to clipboard and open browser
+
+2. ON THE HUGGING FACE PAGE:
+   • Click "app.py" 
+   • Click "Edit this file" (pencil icon)
+   • Press Ctrl+A (select all)
+   • Press Delete
+   • Press Ctrl+V (paste your content)
+   • Scroll down and click "Commit changes to main"
+
+3. WAIT AND VERIFY:
+   • Wait 2-3 minutes for rebuild
+   • Visit: https://huggingface.co/spaces/Solomon7890/ProVerbS_LaW_mAiN_PAgE
+   • Look for 5 TABS at the top
+   • You should see: Welcome, AI Chat, Document Analysis, Features, About
+
+
+🎯 WHAT YOU'LL GET:
+===================
+✅ 5 Tabs (instead of 1)
+✅ 7 AI Modes
+✅ 5 AI Models (DeepSeek, ERNIE, GDPVAL, Llama, MiniMax)
+✅ Document Upload Feature
+✅ AI Model Selector Dropdown
+✅ Mode Selector Dropdown
+
+
+🔧 TROUBLESHOOTING:
+===================
+
+Issue: Can't find "Edit" button
+Solution: Make sure you're logged in to HuggingFace
+
+Issue: Content won't paste
+Solution: Run DEPLOY_HELPER.bat again to re-copy
+
+Issue: Changes don't show after 3 minutes
+Solution: Hard refresh browser (Ctrl+F5)
+
+
+📞 NEED HELP?
+=============
+If you get stuck, let me know at which step!
+
+
+═══════════════════════════════════════════════════════════════
+
+READY TO DEPLOY? 
+
+Double-click: DEPLOY_HELPER.bat
+
+═══════════════════════════════════════════════════════════════

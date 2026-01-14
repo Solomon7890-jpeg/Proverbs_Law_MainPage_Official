@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="eagleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#DAA520;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#B8860B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8B0000;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="bookGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="textGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF8C00;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="200" cy="200" r="190" fill="#2E7D32" stroke="#4CAF50" stroke-width="4"/>
+  
+  <!-- Open book at top -->
+  <path d="M120 70 L200 60 L280 70 L280 110 L200 100 L120 110 Z" fill="url(#bookGradient2)" stroke="#B8860B" stroke-width="2"/>
+  <path d="M200 60 L200 100 M160 75 L160 105 M240 75 L240 105" stroke="#B8860B" stroke-width="1"/>
+  
+  <!-- Eagle head -->
+  <ellipse cx="200" cy="160" rx="60" ry="50" fill="url(#eagleGradient)"/>
+  
+  <!-- Eagle eyes -->
+  <circle cx="185" cy="150" r="12" fill="#FFD700" stroke="#8B0000" stroke-width="2"/>
+  <circle cx="215" cy="150" r="12" fill="#FFD700" stroke="#8B0000" stroke-width="2"/>
+  <circle cx="185" cy="150" r="5" fill="#000"/>
+  <circle cx="215" cy="150" r="5" fill="#000"/>
+  
+  <!-- Eagle beak -->
+  <path d="M200 165 L185 180 L200 175 Z" fill="#FFA500"/>
+  
+  <!-- Eagle wings spread wide -->
+  <path d="M80 180 Q60 160 50 200 Q60 240 90 235 Q120 220 140 200 Q160 180 140 160 Q120 150 100 160 Q80 170 80 180" fill="url(#eagleGradient)" stroke="#8B0000" stroke-width="2"/>
+  <path d="M320 180 Q340 160 350 200 Q340 240 310 235 Q280 220 260 200 Q240 180 260 160 Q280 150 300 160 Q320 170 320 180" fill="url(#eagleGradient)" stroke="#8B0000" stroke-width="2"/>
+  
+  <!-- Eagle body -->
+  <ellipse cx="200" cy="230" rx="45" ry="55" fill="url(#eagleGradient)"/>
+  
+  <!-- Tail feathers -->
+  <path d="M170 280 Q160 300 165 320 Q175 310 180 290" fill="url(#eagleGradient)" stroke="#8B0000" stroke-width="1"/>
+  <path d="M200 285 Q195 305 200 325 Q205 315 210 295" fill="url(#eagleGradient)" stroke="#8B0000" stroke-width="1"/>
+  <path d="M230 280 Q235 300 230 320 Q225 310 220 290" fill="url(#eagleGradient)" stroke="#8B0000" stroke-width="1"/>
+  
+  <!-- Wing feather details -->
+  <path d="M70 190 Q75 200 80 210 Q85 220 90 215" stroke="#FFD700" stroke-width="2" fill="none"/>
+  <path d="M100 170 Q105 180 110 190 Q115 200 120 195" stroke="#FFD700" stroke-width="2" fill="none"/>
+  <path d="M330 190 Q325 200 320 210 Q315 220 310 215" stroke="#FFD700" stroke-width="2" fill="none"/>
+  <path d="M300 170 Q295 180 290 190 Q285 200 280 195" stroke="#FFD700" stroke-width="2" fill="none"/>
+  
+  <!-- Decorative scrollwork -->
+  <path d="M80 330 Q120 320 160 330 Q200 340 240 330 Q280 320 320 330" stroke="#FFD700" stroke-width="3" fill="none"/>
+  
+  <!-- PROVERBS text -->
+  <text x="200" y="360" font-family="serif" font-size="28" font-weight="bold" text-anchor="middle" fill="url(#textGradient2)" stroke="#8B0000" stroke-width="1">PROVERBS</text>
+  
+  <!-- Decorative elements -->
+  <circle cx="200" cy="375" r="3" fill="#FFD700"/>
+  <circle cx="180" cy="375" r="2" fill="#FFD700"/>
+  <circle cx="220" cy="375" r="2" fill="#FFD700"/>
+</svg>
