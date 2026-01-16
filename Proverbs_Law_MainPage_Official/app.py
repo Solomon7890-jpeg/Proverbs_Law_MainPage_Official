@@ -158,37 +158,65 @@ def respond_with_mode(
         yield f"Error: {str(e)}"
 
 
-# Custom CSS with rotating logo animation
+# Custom CSS with award-winning design inspired by The Pendragon Cycle
 custom_css = """
+/* Import modern variable font */
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@100..900&display=swap');
+
+* {
+    font-family: 'Inter Tight', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
 .gradio-container {
-    max-width: 1200px !important;
+    max-width: clamp(800px, 90vw, 1400px) !important;
+    margin: 0 auto;
 }
 
 .header-section {
     text-align: center;
-    padding: 40px 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-radius: 12px;
-    margin-bottom: 30px;
+    padding: clamp(40px, 5vw, 80px) clamp(20px, 3vw, 50px);
+    background: linear-gradient(135deg, #262626 0%, #3a3a3a 50%, #262626 100%);
+    color: #ffffff;
+    border-radius: clamp(12px, 2vw, 24px);
+    margin-bottom: clamp(30px, 4vw, 60px);
     position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.header-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 50%, rgba(156, 142, 125, 0.15) 0%, transparent 50%);
+    pointer-events: none;
 }
 
 .logo-container {
-    margin-bottom: 20px;
+    margin-bottom: clamp(20px, 3vw, 40px);
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
+    z-index: 1;
 }
 
 .rotating-logo {
-    width: 150px;
-    height: 150px;
+    width: clamp(120px, 15vw, 180px);
+    height: clamp(120px, 15vw, 180px);
     border-radius: 50%;
     object-fit: cover;
-    border: 4px solid rgba(255, 255, 255, 0.8);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    animation: fadeInOut 60s infinite;
+    border: 4px solid #9C8E7D;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(156, 142, 125, 0.3);
+    animation: fadeInOut 60s infinite, subtleFloat 8s ease-in-out infinite;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.rotating-logo:hover {
+    transform: scale(1.05);
 }
 
 @keyframes fadeInOut {
@@ -199,41 +227,118 @@ custom_css = """
     100% { opacity: 1; }
 }
 
+@keyframes subtleFloat {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
 .logo-1 { animation-delay: 0s; }
 .logo-2 { animation-delay: 20s; }
 .logo-3 { animation-delay: 40s; }
 
 .header-section h1 {
-    font-size: 3rem;
-    margin-bottom: 10px;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    margin-bottom: clamp(10px, 2vw, 20px);
     font-weight: 700;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    position: relative;
+    z-index: 1;
+}
+
+.header-section p {
+    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+    color: #9C8E7D;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    position: relative;
+    z-index: 1;
 }
 
 .mode-selector {
-    font-size: 1.1rem !important;
+    font-size: clamp(0.95rem, 1.5vw, 1.1rem) !important;
     font-weight: 600 !important;
-    padding: 12px !important;
+    padding: clamp(10px, 1.5vw, 16px) !important;
+    border-radius: 8px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .tab-nav button {
-    font-size: 16px;
+    font-size: clamp(14px, 1.5vw, 16px);
     font-weight: 600;
+    padding: clamp(12px, 2vw, 18px) clamp(20px, 3vw, 32px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 8px 8px 0 0;
+}
+
+.tab-nav button:hover {
+    background: rgba(156, 142, 125, 0.1);
+    transform: translateY(-2px);
 }
 
 .feature-card {
-    border: 2px solid #e0e0e0;
-    border-radius: 12px;
-    padding: 20px;
-    margin: 10px;
-    background: #f8f9fa;
-    transition: all 0.3s;
+    border: 2px solid rgba(156, 142, 125, 0.2);
+    border-radius: clamp(12px, 2vw, 16px);
+    padding: clamp(20px, 3vw, 32px);
+    margin: clamp(10px, 2vw, 16px);
+    background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(156, 142, 125, 0.1), transparent);
+    transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.feature-card:hover::before {
+    left: 100%;
 }
 
 .feature-card:hover {
-    border-color: #667eea;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-    transform: translateY(-2px);
+    border-color: #9C8E7D;
+    box-shadow: 0 12px 32px rgba(38, 38, 38, 0.15);
+    transform: translateY(-4px);
+    background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+}
+
+/* Smooth scroll behavior */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Enhanced button styles */
+button {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:hover {
+    transform: translateY(-1px);
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .header-section {
+        padding: 30px 15px;
+    }
+
+    .feature-card {
+        margin: 8px 0;
+    }
+}
+
+/* Accessibility enhancements */
+:focus-visible {
+    outline: 2px solid #9C8E7D;
+    outline-offset: 2px;
 }
 """
 
