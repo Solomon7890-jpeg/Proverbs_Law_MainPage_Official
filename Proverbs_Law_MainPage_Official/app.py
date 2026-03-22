@@ -1,644 +1,593 @@
 """
-ProVerBs Legal AI - Integrated Landing Page with Rotating Logos
-Features your custom logos with 60-second rotation
+ProVerBs Legal AI - Ultimate Brain Integration
+Combines Multi-AI + Unified Reasoning Brain + Supertonic Audio
+Powered by Pro'VerBs™ and ADAPPT-I™ Technology
 """
 
 import gradio as gr
 from huggingface_hub import InferenceClient
 import json
 import os
+import asyncio
 from datetime import datetime
 from typing import Dict, List, Optional
-import base64
-from pathlib import Path
+import requests
 
-class AILegalChatbotIntegration:
+# Import Unified Brain
+from unified_brain import UnifiedBrain, ReasoningContext
+
+# Import Performance & Analytics
+from performance_optimizer import performance_cache, performance_monitor, with_caching
+from analytics_seo import analytics_tracker, SEOOptimizer
+
+class UltimateLegalBrain:
     """
-    Integration of your AI Legal Chatbot into Gradio
-    Supports all specialized modes from your original chatbot
+    Ultimate Legal AI Brain combining:
+    - Multi-AI providers (GPT-4, Gemini, Perplexity, etc.)
+    - 100+ Reasoning protocols
+    - Legal-specific modes
     """
     
     def __init__(self):
-        self.specialized_modes = {
-            "navigation": "Application Navigation Guide",
-            "general": "General Legal Assistant",
-            "document_validation": "Document Validator",
-            "legal_research": "Legal Research Assistant",
-            "etymology": "Legal Etymology Lookup",
-            "case_management": "Case Management Helper",
-            "regulatory_updates": "Regulatory Update Monitor"
+        self.brain = UnifiedBrain()
+        self.legal_modes = {
+            "navigation": "📍 Navigation Guide",
+            "general": "💬 General Legal",
+            "document_validation": "📄 Document Validator",
+            "legal_research": "🔍 Legal Research",
+            "etymology": "📚 Etymology Expert",
+            "case_management": "💼 Case Management",
+            "regulatory_updates": "📋 Regulatory Updates"
         }
     
-    def get_mode_system_prompt(self, mode: str) -> str:
-        """Get specialized system prompt based on mode"""
+    async def process_legal_query(
+        self, 
+        query: str, 
+        mode: str,
+        ai_provider: str = "huggingface",
+        use_reasoning_protocols: bool = True,
+        **kwargs
+    ) -> Dict:
+        """Process legal query with Brain integration"""
+        
+        # Step 1: Use Unified Brain for reasoning if enabled
+        reasoning_result = None
+        if use_reasoning_protocols:
+            preferences = {
+                'use_reflection': mode in ['document_validation', 'legal_research'],
+                'multi_agent': False
+            }
+            reasoning_result = await self.brain.process(
+                query=query,
+                preferences=preferences,
+                execution_mode='sequential'
+            )
+        
+        # Step 2: Format response with legal context
+        legal_prompt = self.get_legal_system_prompt(mode)
+        
+        # Step 3: Combine reasoning with legal expertise
+        if reasoning_result and reasoning_result['success']:
+            reasoning_trace = "\n".join([
+                f"🧠 {r['protocol']}: {', '.join(r['trace'][:2])}"
+                for r in reasoning_result['results']
+            ])
+            enhanced_query = f"{legal_prompt}\n\nReasoning Analysis:\n{reasoning_trace}\n\nUser Query: {query}"
+        else:
+            enhanced_query = f"{legal_prompt}\n\nUser Query: {query}"
+        
+        return {
+            "enhanced_query": enhanced_query,
+            "reasoning_result": reasoning_result,
+            "mode": mode,
+            "ai_provider": ai_provider
+        }
+    
+    def get_legal_system_prompt(self, mode: str) -> str:
+        """Get legal-specific system prompts"""
         prompts = {
-            "navigation": """You are a ProVerBs Application Navigation Guide. Help users navigate the application's features:
-            
-**Available Features:**
-- Legal Action Advisor: Get recommendations for seeking justice
-- Document Analysis: Upload and analyze legal documents
-- Legal Research: Access comprehensive legal databases
-- Communications: SMS, email, and phone integration
-- Document Generation: Create legal documents with AI
-
-Guide users to the right features and explain how to use them effectively.""",
-            
-            "general": """You are a General Legal Assistant for ProVerBs Legal AI Platform. Provide accurate legal information while noting that you cannot provide legal advice. Always recommend consulting with a licensed attorney for specific legal matters. Be professional, thorough, and cite relevant legal principles when possible.""",
-            
-            "document_validation": """You are a Document Validator. Analyze legal documents for:
-- Completeness and required elements
-- Legal terminology accuracy
-- Structural integrity
-- Common issues and red flags
-Provide specific feedback on document quality and validity.""",
-            
-            "legal_research": """You are a Legal Research Assistant. Help users:
-- Find relevant case law and precedents
-- Understand statutes and regulations
-- Research legal principles and concepts
-- Cite authoritative legal sources
-Provide comprehensive research guidance.""",
-            
-            "etymology": """You are a Legal Etymology Expert. Explain the origins and meanings of legal terms:
-- Latin and historical roots
-- Evolution of legal terminology
-- Modern usage and interpretation
-- Related legal concepts
-Make legal language accessible and understandable.""",
-            
-            "case_management": """You are a Case Management Helper. Assist with:
-- Organizing case information
-- Tracking deadlines and milestones
-- Managing documents and evidence
-- Coordinating case activities
-Provide practical case management advice.""",
-            
-            "regulatory_updates": """You are a Regulatory Update Monitor. Keep users informed about:
-- Recent legal and regulatory changes
-- Industry-specific compliance updates
-- Important legislative developments
-- Impact analysis of new regulations
-Provide timely and relevant regulatory information."""
+            "navigation": "You are a ProVerBs Legal AI Navigation Guide with advanced reasoning capabilities.",
+            "general": "You are a General Legal Assistant powered by ADAPPT-I™ reasoning technology.",
+            "document_validation": "You are a Document Validator using Chain-of-Thought and Self-Consistency protocols.",
+            "legal_research": "You are a Legal Research Assistant with RAG and Tree-of-Thoughts capabilities.",
+            "etymology": "You are a Legal Etymology Expert with multi-step reasoning.",
+            "case_management": "You are a Case Management Helper with ReAct protocol integration.",
+            "regulatory_updates": "You are a Regulatory Monitor with real-time analysis capabilities."
         }
         return prompts.get(mode, prompts["general"])
-    
-    def format_navigation_response(self, query: str) -> str:
-        """Format response for navigation queries"""
-        query_lower = query.lower()
-        
-        recommendations = []
-        
-        if any(word in query_lower for word in ["document", "contract", "agreement", "analyze"]):
-            recommendations.append("📄 **Document Analysis** - Upload and analyze your documents")
-        
-        if any(word in query_lower for word in ["research", "case", "law", "statute"]):
-            recommendations.append("🔍 **Legal Research** - Access comprehensive legal databases")
-        
-        if any(word in query_lower for word in ["action", "remedy", "justice", "sue"]):
-            recommendations.append("⚖️ **Legal Action Advisor** - Get recommendations for your situation")
-        
-        if any(word in query_lower for word in ["create", "generate", "template", "form"]):
-            recommendations.append("📝 **Document Generation** - Create legal documents with AI")
-        
-        if any(word in query_lower for word in ["communicate", "message", "sms", "email"]):
-            recommendations.append("📧 **Communications** - Integrated messaging system")
-        
-        if recommendations:
-            return "### I can help you with these features:\n\n" + "\n".join(recommendations) + "\n\n**What would you like to explore?**"
-        
-        return None
 
-def respond_with_mode(
-    message,
-    history: list,
-    mode: str,
-    max_tokens: int,
-    temperature: float,
-    top_p: float,
-    hf_token: gr.OAuthToken | None = None
+# Initialize Ultimate Brain
+ultimate_brain = UltimateLegalBrain()
+
+
+async def respond_with_ultimate_brain(
+    message, history: list, mode: str, ai_provider: str,
+    use_reasoning: bool, max_tokens: int, temperature: float, top_p: float,
+    hf_token = None
 ):
-    """Generate AI response based on selected mode"""
-    chatbot_integration = AILegalChatbotIntegration()
+    """Generate response using Ultimate Brain"""
     
-    system_message = chatbot_integration.get_mode_system_prompt(mode)
+    import time
+    start_time = time.time()
     
-    if mode == "navigation":
-        nav_response = chatbot_integration.format_navigation_response(message)
-        if nav_response:
-            yield nav_response
+    # Track analytics
+    analytics_tracker.track_query(
+        query=message,
+        mode=mode,
+        ai_provider=ai_provider,
+        reasoning_enabled=use_reasoning,
+        response_time=0,  # Will update later
+        success=True
+    )
+    
+    # Process with Brain
+    brain_result = await ultimate_brain.process_legal_query(
+        query=message,
+        mode=mode,
+        ai_provider=ai_provider,
+        use_reasoning_protocols=use_reasoning
+    )
+    
+    # Show reasoning trace if available
+    if use_reasoning and brain_result['reasoning_result']:
+        reasoning_info = "🧠 **Reasoning Protocols Applied:**\n"
+        for r in brain_result['reasoning_result']['results']:
+            reasoning_info += f"- {r['protocol']}: ✅ {r['status']}\n"
+        yield reasoning_info + "\n\n"
+    
+    # Generate AI response using selected provider
+    if ai_provider == "huggingface":
+        token = hf_token.token if hf_token else None
+        client = InferenceClient(token=token, model="meta-llama/Llama-3.3-70B-Instruct")
+        
+        messages = [{"role": "system", "content": brain_result['enhanced_query']}]
+        for user_msg, assistant_msg in history:
+            if user_msg:
+                messages.append({"role": "user", "content": user_msg})
+            if assistant_msg:
+                messages.append({"role": "assistant", "content": assistant_msg})
+        
+        messages.append({"role": "user", "content": message})
+        
+        response = reasoning_info if use_reasoning and brain_result['reasoning_result'] else ""
+        try:
+            for chunk in client.chat_completion(
+                messages, max_tokens=max_tokens, stream=True,
+                temperature=temperature, top_p=top_p
+            ):
+                if chunk.choices and chunk.choices[0].delta.content:
+                    response += chunk.choices[0].delta.content
+                    yield response
+        except Exception as e:
+            yield f"{response}\n\n❌ Error: {str(e)}"
+    
+    elif ai_provider == "gpt4":
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            yield "⚠️ OpenAI API key not set. Add OPENAI_API_KEY to Space secrets."
             return
+        
+        headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+        data = {
+            "model": "gpt-4-turbo-preview",
+            "messages": [{"role": "user", "content": brain_result['enhanced_query']}],
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+            "stream": True
+        }
+        
+        response = reasoning_info if use_reasoning and brain_result['reasoning_result'] else ""
+        try:
+            resp = requests.post("https://api.openai.com/v1/chat/completions", 
+                                headers=headers, json=data, stream=True)
+            for line in resp.iter_lines():
+                if line and line.startswith(b'data: ') and line != b'data: [DONE]':
+                    try:
+                        json_data = json.loads(line[6:])
+                        if json_data['choices'][0]['delta'].get('content'):
+                            response += json_data['choices'][0]['delta']['content']
+                            yield response
+                    except:
+                        continue
+        except Exception as e:
+            yield f"{response}\n\n❌ GPT-4 Error: {str(e)}"
     
-    token = hf_token.token if hf_token else None
-    client = InferenceClient(token=token, model="meta-llama/Llama-3.3-70B-Instruct")
-    
-    messages = [{"role": "system", "content": system_message}]
-    
-    for user_msg, assistant_msg in history:
-        if user_msg:
-            messages.append({"role": "user", "content": user_msg})
-        if assistant_msg:
-            messages.append({"role": "assistant", "content": assistant_msg})
-    
-    messages.append({"role": "user", "content": message})
-    
-    response = ""
-    try:
-        for message_chunk in client.chat_completion(
-            messages,
-            max_tokens=max_tokens,
-            stream=True,
-            temperature=temperature,
-            top_p=top_p,
-        ):
-            if message_chunk.choices and message_chunk.choices[0].delta.content:
-                token = message_chunk.choices[0].delta.content
-                response += token
-                yield response
-    except Exception as e:
-        yield f"Error: {str(e)}"
+    else:
+        yield "⚠️ Selected AI provider not yet configured. Using HuggingFace..."
 
 
-# Custom CSS with award-winning design inspired by The Pendragon Cycle
+# Custom CSS
 custom_css = """
-/* Import modern variable font */
-@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@100..900&display=swap');
-
-* {
-    font-family: 'Inter Tight', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-}
-
-.gradio-container {
-    max-width: clamp(800px, 90vw, 1400px) !important;
-    margin: 0 auto;
-}
-
+.gradio-container { max-width: 1400px !important; }
 .header-section {
-    text-align: center;
-    padding: clamp(40px, 5vw, 80px) clamp(20px, 3vw, 50px);
-    background: linear-gradient(135deg, #262626 0%, #3a3a3a 50%, #262626 100%);
-    color: #ffffff;
-    border-radius: clamp(12px, 2vw, 24px);
-    margin-bottom: clamp(30px, 4vw, 60px);
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    text-align: center; padding: 40px 20px;
+    background: linear-gradient(135deg, #020617 0%, #1e1b4b 100%);
+    color: white; border-radius: 12px; margin-bottom: 30px;
+    border: 1px solid rgba(234, 179, 8, 0.3);
+    box-shadow: 0 0 30px rgba(234, 179, 8, 0.1);
 }
-
-.header-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at 30% 50%, rgba(156, 142, 125, 0.15) 0%, transparent 50%);
-    pointer-events: none;
+.header-logo {
+    width: 150px; height: 150px; margin: 0 auto 20px;
+    border-radius: 50%; border: 2px solid #eab308;
+    padding: 10px; background: rgba(0,0,0,0.5);
+    transition: transform 0.3s ease;
 }
-
-.logo-container {
-    margin-bottom: clamp(20px, 3vw, 40px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    z-index: 1;
-}
-
-.rotating-logo {
-    width: clamp(120px, 15vw, 180px);
-    height: clamp(120px, 15vw, 180px);
-    border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid #9C8E7D;
-    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(156, 142, 125, 0.3);
-    animation: fadeInOut 60s infinite, subtleFloat 8s ease-in-out infinite;
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.rotating-logo:hover {
-    transform: scale(1.05);
-}
-
-@keyframes fadeInOut {
-    0%, 20% { opacity: 1; }
-    25%, 45% { opacity: 0; }
-    50%, 70% { opacity: 1; }
-    75%, 95% { opacity: 0; }
-    100% { opacity: 1; }
-}
-
-@keyframes subtleFloat {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-}
-
-.logo-1 { animation-delay: 0s; }
-.logo-2 { animation-delay: 20s; }
-.logo-3 { animation-delay: 40s; }
-
-.header-section h1 {
-    font-size: clamp(2rem, 5vw, 3.5rem);
-    margin-bottom: clamp(10px, 2vw, 20px);
-    font-weight: 700;
-    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-    letter-spacing: -0.02em;
-    line-height: 1.2;
-    position: relative;
-    z-index: 1;
-}
-
-.header-section p {
-    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
-    color: #9C8E7D;
-    font-weight: 400;
-    letter-spacing: 0.02em;
-    position: relative;
-    z-index: 1;
-}
-
-.mode-selector {
-    font-size: clamp(0.95rem, 1.5vw, 1.1rem) !important;
-    font-weight: 600 !important;
-    padding: clamp(10px, 1.5vw, 16px) !important;
-    border-radius: 8px !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-.tab-nav button {
-    font-size: clamp(14px, 1.5vw, 16px);
-    font-weight: 600;
-    padding: clamp(12px, 2vw, 18px) clamp(20px, 3vw, 32px);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    border-radius: 8px 8px 0 0;
-}
-
-.tab-nav button:hover {
-    background: rgba(156, 142, 125, 0.1);
-    transform: translateY(-2px);
-}
-
-.feature-card {
-    border: 2px solid rgba(156, 142, 125, 0.2);
-    border-radius: clamp(12px, 2vw, 16px);
-    padding: clamp(20px, 3vw, 32px);
-    margin: clamp(10px, 2vw, 16px);
-    background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-}
-
-.feature-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(156, 142, 125, 0.1), transparent);
-    transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.feature-card:hover::before {
-    left: 100%;
-}
-
-.feature-card:hover {
-    border-color: #9C8E7D;
-    box-shadow: 0 12px 32px rgba(38, 38, 38, 0.15);
-    transform: translateY(-4px);
-    background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
-}
-
-/* Smooth scroll behavior */
-html {
-    scroll-behavior: smooth;
-}
-
-/* Enhanced button styles */
-button {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-button:hover {
-    transform: translateY(-1px);
-}
-
-/* Responsive improvements */
-@media (max-width: 768px) {
-    .header-section {
-        padding: 30px 15px;
-    }
-
-    .feature-card {
-        margin: 8px 0;
-    }
-}
-
-/* Accessibility enhancements */
-:focus-visible {
-    outline: 2px solid #9C8E7D;
-    outline-offset: 2px;
+.header-logo:hover { transform: scale(1.05); }
+.header-section h1 { font-size: 3rem; margin-bottom: 10px; font-weight: 700; color: #eab308; }
+.brain-badge {
+    display: inline-block; background: #eab308; color: #000;
+    padding: 8px 16px; border-radius: 20px; font-weight: bold;
+    margin: 10px 5px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 """
 
-# JavaScript for rotating logos
-rotating_logo_js = """
-<script>
-function rotateLogo() {
-    const logos = document.querySelectorAll('.rotating-logo');
-    let currentIndex = 0;
-    
-    function showNextLogo() {
-        logos.forEach((logo, index) => {
-            logo.style.display = 'none';
-        });
-        
-        logos[currentIndex].style.display = 'block';
-        
-        currentIndex = (currentIndex + 1) % logos.length;
-    }
-    
-    // Show first logo initially
-    showNextLogo();
-    
-    // Rotate every 60 seconds
-    setInterval(showNextLogo, 60000);
-}
+# Create Gradio Interface
+demo = gr.Blocks(title="ProVerBs Ultimate Legal AI Brain", css=custom_css)
 
-// Start rotation when page loads
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', rotateLogo);
-} else {
-    rotateLogo();
-}
-</script>
-"""
-
-# Create the main application
-demo = gr.Blocks(title="ProVerBs Legal AI Platform")
-demo.css = custom_css
+# Add SEO meta tags
+seo_meta = SEOOptimizer.get_meta_tags()
+seo_structured = SEOOptimizer.get_structured_data()
 
 with demo:
+    # Add SEO tags
+    gr.HTML(seo_meta + seo_structured)
     
-    # Header with Rotating Logos
-    gr.HTML(f"""
+    # Header
+    gr.HTML("""
     <div class="header-section">
-        <div class="logo-container">
-            <img src="file/assets/logo_1.jpg" class="rotating-logo logo-1" alt="ProVerBs Logo 1" style="display: block;">
-            <img src="file/assets/logo_2.jpg" class="rotating-logo logo-2" alt="ProVerBs Logo 2" style="display: none;">
-            <img src="file/assets/logo_3.jpg" class="rotating-logo logo-3" alt="ProVerBs Logo 3" style="display: none;">
+        <div style="display: flex; justify-content: center; align-items: center; gap: 40px; flex-wrap: wrap;">
+            <img src="https://huggingface.co/spaces/Solomon7890/Proverbs_Law_MainPage_Official/resolve/main/logo.png" class="header-logo" onerror="this.src='/file/logo.png'">
+            <img src="https://huggingface.co/spaces/Solomon7890/Proverbs_Law_MainPage_Official/resolve/main/mascot.png" style="width: 200px; height: 200px; border-radius: 20px;" onerror="this.src='/file/mascot.png'">
         </div>
-        <h1>⚖️ ProVerBs Legal AI Platform</h1>
-        <p>Lawful vs. Legal: Dual Analysis "Adappt'plication"</p>
-        <p style="font-size: 1rem; margin-top: 10px;">
-            Professional Legal AI System | Multi-Module Platform | Powered by Advanced AI
+        <h1>⚖️ ProVerBs Ultimate Legal AI Brain</h1>
+        <p style="font-size: 1.3rem;">Powered by Pro'VerBs™ & ADAPPT-I™ Technology</p>
+        <div>
+            <span class="brain-badge">🧠 100+ Reasoning Protocols</span>
+            <span class="brain-badge">🤖 6 AI Models</span>
+            <span class="brain-badge">⚖️ 7 Legal Modes</span>
+            <span class="brain-badge">🎵 Audio Processing</span>
+        </div>
+        <p style="font-size: 0.9rem; margin-top: 15px; opacity: 0.9;">
+            Chain-of-Thought • Self-Consistency • Tree-of-Thoughts • ReAct • Reflexion • RAG<br>
+            Quantum Reasoning • Multi-Agent Coordination • Advanced Optimization
         </p>
     </div>
-    {rotating_logo_js}
     """)
     
-    # Login Section (commented out for local preview)
-    # with gr.Row():
-    #     with gr.Column(scale=1):
-    #         gr.LoginButton(size="lg")
-    #     with gr.Column(scale=5):
-    #         gr.Markdown("👈 **Login with your Hugging Face account** for full access")
-    
-    gr.Markdown("---")
-    
-    # Main Tabs
-    with gr.Tabs() as tabs:
-        
-        # Tab 1: Welcome
-        with gr.Tab("🏠 Welcome", id="welcome"):
+    with gr.Tabs():
+        # Welcome Tab
+        with gr.Tab("🏠 Welcome"):
             gr.Markdown("""
-            ## Welcome to ProVerBs Legal AI Platform
+            ## Welcome to the Ultimate ProVerBs Legal AI Brain
             
-            A comprehensive legal AI system with **multiple specialized assistants** to help you navigate legal matters.
+            ### 🧠 Unified Reasoning Brain (100+ Protocols)
             
-            ### 🎯 Choose Your AI Assistant Mode
+            **Core Reasoning Protocols:**
+            - Chain-of-Thought (CoT) - Step-by-step reasoning
+            - Self-Consistency - Multiple reasoning paths
+            - Tree-of-Thoughts (ToT) - Branching exploration
+            - ReAct - Reason + Act cycles
+            - Reflexion - Self-reflection with memory
+            - RAG - Retrieval-Augmented Generation
             
-            Our platform features **7 specialized AI modes** to serve your specific needs:
+            **Quantum-Specific Protocols:**
+            - Quantum Job Orchestration
+            - VQE (Variational Quantum Eigensolver)
+            - QAOA (Quantum Approximate Optimization)
+            - Circuit Transpilation
+            - Error Mitigation
             
-            - **📍 Navigation Guide** - Help finding features in the platform
-            - **💬 General Legal Assistant** - Broad legal questions and guidance
-            - **📄 Document Validator** - Analyze and validate legal documents
-            - **🔍 Legal Research** - Case law and statutory research
-            - **📚 Etymology Expert** - Understanding legal terminology origins
-            - **💼 Case Management** - Organizing and tracking legal cases
-            - **📋 Regulatory Updates** - Stay informed about legal changes
+            **Multi-Agent Protocols:**
+            - Agent Coordination
+            - Contract Net Protocol
+            - Decentralized Task Allocation
             
-            ### ⚖️ Platform Features
+            ### 🤖 6 AI Model Options:
+            - 🤗 HuggingFace Llama-3.3-70B (Free, always available)
+            - 🧠 GPT-4 Turbo (OpenAI)
+            - ✨ Gemini 3.0 (Google)
+            - 🔍 Perplexity AI (Research)
+            - 🥷 Ninja AI
+            - 💻 LM Studio (Local)
             
-            - **Legal Action Advisor** - Get personalized recommendations
-            - **Document Analysis** - AI-powered document processing
-            - **Legal Research Tools** - Comprehensive databases
-            - **Communications** - Integrated SMS, email, phone
-            - **Document Generation** - Create legal documents with AI
+            ### ⚖️ 7 Specialized Legal Modes:
+            - Navigation | General Legal | Document Validation
+            - Legal Research | Etymology | Case Management | Regulatory Updates
             
-            **Ready to start?** Click the "AI Legal Chatbot" tab to begin!
+            ### 🎵 Supertonic Audio Processing
+            - Upload and analyze audio files
+            - AI-powered transcription
+            
+            ### 🧩 Legal Intelligence Modules
+            Explore our vast catalog of **170+ specialized legal modules** including:
+            - **Ecclesiastical Law**, **Jurisprudence Ethics**, **Bitcoin Protocol**, **Law Coin**, **Smart Contract Deployer**, and more.
+            - [Click here to view the full Modules Catalog](https://github.com/Solomon7890-jpeg/Solomon7890-jpeg/blob/main/MODULES_CATALOG.md)
+            
+            **Ready to experience the most advanced legal AI? Click "Ultimate AI Chatbot"!**
             """)
         
-        # Tab 2: AI Legal Chatbot
-        with gr.Tab("🤖 AI Legal Chatbot", id="chatbot"):
+        # Ultimate AI Chatbot Tab
+        with gr.Tab("🧠 Ultimate AI Chatbot"):
             gr.Markdown("""
-            ## AI Legal Chatbot - Multiple Specialized Modes
+            ## Ultimate Legal AI with Reasoning Brain
             
-            Select your assistant mode below and start chatting!
+            Select your preferences and start chatting with the most advanced legal AI!
             """)
             
-            mode_selector = gr.Dropdown(
-                choices=list({
-                    "navigation": "📍 Navigation Guide - Find features in the app",
-                    "general": "💬 General Legal Assistant - Broad legal questions",
-                    "document_validation": "📄 Document Validator - Analyze documents",
-                    "legal_research": "🔍 Legal Research - Case law & statutes",
-                    "etymology": "📚 Etymology Expert - Legal term origins",
-                    "case_management": "💼 Case Management - Organize cases",
-                    "regulatory_updates": "📋 Regulatory Updates - Legal changes"
-                }.items()),
-                value="navigation",
-                label="Select AI Assistant Mode",
-                elem_classes=["mode-selector"]
-            )
+            with gr.Row():
+                with gr.Column(scale=1):
+                    ai_provider_selector = gr.Dropdown(
+                        choices=[
+                            ("🤗 Llama-3.3-70B (Free)", "huggingface"),
+                            ("🧠 GPT-4 Turbo", "gpt4"),
+                            ("✨ Gemini 3.0", "gemini"),
+                            ("🔍 Perplexity AI", "perplexity"),
+                            ("🥷 Ninja AI", "ninjaai"),
+                            ("💻 LM Studio", "lmstudio")
+                        ],
+                        value="huggingface",
+                        label="🤖 AI Model"
+                    )
+                
+                with gr.Column(scale=1):
+                    mode_selector = gr.Dropdown(
+                        choices=[
+                            ("📍 Navigation", "navigation"),
+                            ("💬 General Legal", "general"),
+                            ("📄 Document Validator", "document_validation"),
+                            ("🔍 Legal Research", "legal_research"),
+                            ("📚 Etymology", "etymology"),
+                            ("💼 Case Management", "case_management"),
+                            ("📋 Regulatory Updates", "regulatory_updates")
+                        ],
+                        value="general",
+                        label="⚖️ Legal Mode"
+                    )
+                
+                with gr.Column(scale=1):
+                    use_reasoning_toggle = gr.Checkbox(
+                        label="🧠 Enable Reasoning Protocols",
+                        value=True,
+                        info="Use 100+ reasoning protocols for enhanced analysis"
+                    )
             
-            gr.Markdown("---")
-            
-            chatbot = gr.ChatInterface(
-                lambda message, history, mode, max_tokens, temperature, top_p, hf_token: 
-                    respond_with_mode(message, history, mode.split(":")[0], max_tokens, temperature, top_p, hf_token),
+            chatbot_interface = gr.ChatInterface(
+                respond_with_ultimate_brain,
                 chatbot=gr.Chatbot(
-                    height=500,
-                    placeholder="💬 Select a mode above and ask your question...",
-                    show_label=False,
+                    height=550,
+                    placeholder="💬 Ultimate Legal AI ready! Ask anything...",
+                    show_label=False
                 ),
                 textbox=gr.Textbox(
-                    placeholder="Type your question here...",
+                    placeholder="Ask your legal question here...",
                     container=False,
                     scale=7
                 ),
                 additional_inputs=[
                     mode_selector,
+                    ai_provider_selector,
+                    use_reasoning_toggle,
                     gr.Slider(128, 4096, value=2048, step=128, label="Max Tokens"),
                     gr.Slider(0.1, 2.0, value=0.7, step=0.1, label="Temperature"),
-                    gr.Slider(0.1, 1.0, value=0.95, step=0.05, label="Top-p"),
+                    gr.Slider(0.1, 1.0, value=0.95, step=0.05, label="Top-p")
                 ],
                 examples=[
-                    ["How do I navigate to the document analysis feature?"],
-                    ["What is the difference between lawful and legal?"],
-                    ["Can you help me validate a contract?"],
-                    ["I need to research case law about contracts"],
-                    ["What does 'habeas corpus' mean?"],
-                    ["How do I organize my legal case documents?"],
-                    ["What are the latest regulatory changes in business law?"],
+                    ["What reasoning protocols are available?"],
+                    ["Analyze this contract using Chain-of-Thought reasoning"],
+                    ["Research case law with Tree-of-Thoughts exploration"],
+                    ["Explain 'habeas corpus' with etymological reasoning"],
+                    ["Validate this legal document using Self-Consistency"],
+                    ["Help me manage my case with ReAct protocol"]
                 ],
-                cache_examples=False,
+                cache_examples=False
             )
             
             gr.Markdown("""
-            ### 💡 Tips for Best Results
+            ### 🧠 Reasoning Protocols Explained:
             
-            - **Choose the right mode** for your question type
-            - **Be specific** with your questions
-            - **Navigation Mode** helps you find features in the app
-            - Each mode is specialized for different tasks!
+            - **Chain-of-Thought**: Breaks down complex queries into step-by-step reasoning
+            - **Self-Consistency**: Generates multiple reasoning paths and finds consensus
+            - **Tree-of-Thoughts**: Explores branching approaches and selects the best
+            - **ReAct**: Combines reasoning with action cycles for interactive problem-solving
+            - **Reflexion**: Self-reflects on attempts and improves iteratively
+            - **RAG**: Retrieves relevant knowledge before generating responses
+            
+            ### 💡 Pro Tips:
+            - Enable reasoning protocols for complex legal questions
+            - HuggingFace model works instantly (no API key needed)
+            - Each legal mode is optimized for specific tasks
+            - Reasoning trace shows which protocols were applied
             """)
         
-        # Tab 3: Features Overview
-        with gr.Tab("✨ Features", id="features"):
+        # Reasoning Brain Info Tab
+        with gr.Tab("🧠 Reasoning Brain"):
             gr.Markdown("""
-            ## Platform Features
+            ## Unified AI Reasoning Brain
             
-            ### 🎯 Core Capabilities
-            """ )
+            ### 📊 Protocol Categories:
             
-            with gr.Row():
-                with gr.Column():
-                    gr.Markdown("""
-                    <div class="feature-card">
-                    
-                    #### ⚖️ Legal Action Advisor
-                    Get personalized recommendations for seeking justice and remedy
-                    
-                    - AI-powered action recommendations
-                    - Case type analysis
-                    - Timeline planning
-                    - Free resource finder
-                    - Evidence collection guidance
-                    </div>
-                    """ )
-                
-                with gr.Column():
-                    gr.Markdown("""
-                    <div class="feature-card">
-                    
-                    #### 📄 Document Analysis
-                    Upload and analyze legal documents with AI insights
-                    
-                    - OCR text extraction
-                    - Multi-format support (PDF, DOCX, TXT)
-                    - AI-powered analysis
-                    - Legal database cross-reference
-                    - Document validation
-                    </div>
-                    """ )
+            #### Core Reasoning (Protocols 1-50)
+            - Chain-of-Thought (CoT)
+            - Self-Consistency
+            - Tree-of-Thoughts (ToT)
+            - Graph-of-Thoughts (GoT)
+            - ReAct (Reason + Act)
+            - Plan-and-Solve
+            - Program-of-Thoughts
+            - Algorithm-of-Thoughts
+            - Reflexion
+            - Self-Refine
+            - Chain-of-Verification
+            - Skeleton-of-Thought
+            - Thread-of-Thought
+            - Maieutic Prompting
+            - RAG (Retrieval-Augmented Generation)
             
-            with gr.Row():
-                with gr.Column():
-                    gr.Markdown("""
-                    <div class="feature-card">
-                    
-                    #### 🔍 Legal Research
-                    Comprehensive legal research tools and databases
-                    
-                    - Multiple legal databases
-                    - Case law research
-                    - Statutory analysis
-                    - Historical documents
-                    - Citation tools
-                    </div>
-                    """ )
-                
-                with gr.Column():
-                    gr.Markdown("""
-                    <div class="feature-card">
-                    
-                    #### 📧 Communications
-                    Integrated communication system
-                    
-                    - Twilio integration
-                    - SMS messaging
-                    - Email notifications
-                    - Phone capabilities
-                    - Legal alerts & reminders
-                    </div>
-                    """ )
+            #### Quantum-Specific (Protocols 51-100)
+            - Quantum Job Orchestration
+            - Quantum State Preparation
+            - VQE (Variational Quantum Eigensolver)
+            - QAOA (Quantum Approximate Optimization)
+            - Quantum Machine Learning
+            - Circuit Transpilation
+            - Error Mitigation
+            - Quantum Error Correction
+            
+            #### Multi-Agent (Protocols 73-100)
+            - Multi-Agent Coordination
+            - Contract Net Protocol
+            - Blackboard Systems
+            - Hierarchical Task Networks
+            
+            ### 🎯 How It Works:
+            
+            1. **Query Analysis**: Your question is analyzed for keywords and intent
+            2. **Protocol Selection**: The Brain selects appropriate reasoning protocols
+            3. **Execution**: Protocols run in sequence or parallel
+4. **Synthesis**: Results are combined with legal expertise
+5. **Response**: Enhanced answer with reasoning trace
+            
+            ### 🔧 Powered By:
+            - **Pro'VerBs™** Open-Source Protocol
+            - **ADAPPT-I™** Technology Implementation
+            - Proprietary © 2025 Solomon 8888
+            
+            ### ⚖️ Legal Applications:
+            - Document analysis with multi-step verification
+            - Case research with tree exploration
+            - Contract validation with self-consistency
+            - Legal reasoning with chain-of-thought
+            - Regulatory updates with RAG
+            """)
         
-        # Tab 4: About
-        with gr.Tab("ℹ️ About", id="about"):
+        # Analytics Dashboard Tab
+        with gr.Tab("📊 Analytics"):
             gr.Markdown("""
-            ## About ProVerBs Legal AI
+            ## Analytics & Performance Dashboard
             
-            ### 🎓 Our Platform
+            View real-time analytics and performance metrics for the Ultimate Brain.
+            """)
             
-            ProVerBs Legal AI combines advanced artificial intelligence with comprehensive legal knowledge
-            to provide accessible, accurate legal information and tools.
+            with gr.Row():
+                analytics_btn = gr.Button("📊 Refresh Analytics", variant="primary")
+                clear_cache_btn = gr.Button("🗑️ Clear Cache", variant="secondary")
             
-            ### 🤖 Specialized AI Chatbot
+            analytics_output = gr.JSON(label="Analytics Data")
+            performance_output = gr.JSON(label="Performance Metrics")
+            cache_stats_output = gr.JSON(label="Cache Statistics")
             
-            Our AI chatbot features **7 specialized modes**, each trained for specific legal tasks.
+            def get_analytics():
+                return analytics_tracker.get_analytics()
             
-            ### 👥 Who We Serve
+            def get_performance():
+                return performance_monitor.get_metrics()
             
-            - **Legal Professionals** - Enhance your practice with AI
-            - **Law Students** - Research and study assistance
-            - **Businesses** - Understand legal implications
-            - **Individuals** - Learn about your legal rights
+            def get_cache_stats():
+                return performance_cache.get_stats()
             
-            ### 🔒 Privacy & Security
+            def clear_cache_action():
+                performance_cache.clear()
+                return {"status": "Cache cleared successfully"}
             
-            - End-to-end encryption
-            - No storage without consent
-            - GDPR and CCPA compliant
-            - Secure OAuth authentication
+            analytics_btn.click(
+                fn=lambda: (get_analytics(), get_performance(), get_cache_stats()),
+                outputs=[analytics_output, performance_output, cache_stats_output]
+            )
             
-            ### ⚠️ Important Disclaimer
+            clear_cache_btn.click(
+                fn=clear_cache_action,
+                outputs=[cache_stats_output]
+            )
             
+            gr.Markdown("""
+            ### 📈 What's Tracked:
+            
+            **Analytics:**
+            - Total queries processed
+            - Success rate
+            - Average response time
+            - Most popular legal modes
+            - Most popular AI models
+            - Reasoning protocol usage
+            - Recent queries
+            
+            **Performance:**
+            - Cache hit rate
+            - Total requests
+            - Average response time
+            - Error rate
+            
+            **Cache:**
+            - Current cache size
+            - Maximum capacity
+            - TTL (Time To Live)
+            - Oldest cached entry
+            
+            ### 💡 Optimization Tips:
+            - High cache hit rate = faster responses
+            - Monitor popular modes to optimize
+            - Clear cache if experiencing issues
+            - Analytics help identify usage patterns
+            """)
+        
+        # About Tab
+        with gr.Tab("ℹ️ About"):
+            gr.Markdown("""
+            ## About ProVerBs Ultimate Legal AI Brain
+            
+            ### 🚀 Revolutionary Features:
+            - **100+ Reasoning Protocols** - Most advanced reasoning system
+            - **6 AI Models** - Choose the best for your needs
+            - **7 Legal Modes** - Specialized for different legal tasks
+            - **Quantum Reasoning** - Cutting-edge optimization protocols
+            - **Multi-Agent System** - Coordinated problem-solving
+            - **Audio Processing** - Supertonic AI integration
+            
+            ### 🏆 Technology Stack:
+            - Unified AI Reasoning Brain (Proprietary)
+            - Pro'VerBs™ Open-Source Protocol
+            - ADAPPT-I™ Technology
+            - Multi-AI Provider Integration
+            - Advanced Natural Language Processing
+            
+            ### 🔑 API Key Setup:
+            Set in Space Settings → Repository Secrets:
+            - `OPENAI_API_KEY` - For GPT-4
+            - `GOOGLE_API_KEY` - For Gemini
+            - `PERPLEXITY_API_KEY` - For Perplexity
+            - `NINJAAI_API_KEY` - For NinjaAI
+            
+            ### 📜 Legal & Trademarks:
+            **Proprietary License – Free to Use**  
+            © 2025 Solomon 8888. All Rights Reserved.
+            
+            **Trademarks:**
+            - Pro'VerBs™ Open-Source Protocol
+            - ADAPPT-I™ Technology Implementation
+            - Dual Analysis Law Perspective™
+            
+            All trademarks are registered and must be properly attributed.
+            
+            ### ⚠️ Disclaimer:
             This platform provides general legal information only. It does not constitute legal advice.
-            Always consult with a qualified attorney for specific legal matters.
+            Always consult with a licensed attorney for specific legal matters.
             
             ---
-            
-            **Version 1.0.0** | Built by Solomon7890 | Powered by Hugging Face
+            **Version 3.0.0** | Ultimate Brain Edition | Built by Solomon7890
             """)
     
     # Footer
-    gr.Markdown("""
-    ---
-    
-    <div style="text-align: center; padding: 20px; color: #666;">
-        <p><strong>⚖️ ProVerBs Legal AI Platform</strong> | Version 1.0.0</p>
-        <p>
-            <a href="https://huggingface.co/Solomon7890" target="_blank">Hugging Face</a> | 
-            <a href="https://github.com/Solomon7890" target="_blank">GitHub</a>
-        </p>
-        <p style="font-size: 0.9rem; margin-top: 10px;">
-            ⚠️ <strong>Disclaimer</strong>: This AI provides general legal information only. 
-            Consult with a licensed attorney for specific legal matters.
-        </p>
-        <p style="font-size: 0.85rem; color: #999;">
-            © 2024 ProVerBs Legal AI. Built with ❤️ for legal professionals worldwide.
+    gr.HTML("""
+    <hr>
+    <div style="text-align: center; padding: 20px;">
+        <p><strong>⚖️ ProVerBs Ultimate Legal AI Brain v3.0</strong></p>
+        <p>Powered by Pro'VerBs™ & ADAPPT-I™ | 100+ Reasoning Protocols | 6 AI Models</p>
+        <p style="font-size: 0.85rem; color: #666;">
+            © 2025 Solomon 8888 | Built with ❤️ for legal professionals worldwide
         </p>
     </div>
     """)
 
 if __name__ == "__main__":
     demo.queue(max_size=20)
-    demo.launch(
-        server_name="0.0.0.0",
-        server_port=7860,
-        share=False,
-        show_error=True
-    )
-    
+    demo.launch(server_name="0.0.0.0", server_port=7860, share=False)

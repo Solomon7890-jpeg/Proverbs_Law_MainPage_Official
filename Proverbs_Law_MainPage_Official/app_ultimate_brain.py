@@ -201,14 +201,23 @@ custom_css = """
 .gradio-container { max-width: 1400px !important; }
 .header-section {
     text-align: center; padding: 40px 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #020617 0%, #1e1b4b 100%);
     color: white; border-radius: 12px; margin-bottom: 30px;
+    border: 1px solid rgba(234, 179, 8, 0.3);
+    box-shadow: 0 0 30px rgba(234, 179, 8, 0.1);
 }
-.header-section h1 { font-size: 3rem; margin-bottom: 10px; font-weight: 700; }
+.header-logo {
+    width: 150px; height: 150px; margin: 0 auto 20px;
+    border-radius: 50%; border: 2px solid #eab308;
+    padding: 10px; background: rgba(0,0,0,0.5);
+    transition: transform 0.3s ease;
+}
+.header-logo:hover { transform: scale(1.05); }
+.header-section h1 { font-size: 3rem; margin-bottom: 10px; font-weight: 700; color: #eab308; }
 .brain-badge {
-    display: inline-block; background: #ff6b6b; color: white;
+    display: inline-block; background: #eab308; color: #000;
     padding: 8px 16px; border-radius: 20px; font-weight: bold;
-    margin: 10px 5px;
+    margin: 10px 5px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 """
 
@@ -226,6 +235,7 @@ with demo:
     # Header
     gr.HTML("""
     <div class="header-section">
+        <img src="https://huggingface.co/spaces/Solomon7890/Proverbs_Law_MainPage_Official/resolve/main/logo.png" class="header-logo" onerror="this.src='/file/logo.png'">
         <h1>⚖️ ProVerBs Ultimate Legal AI Brain</h1>
         <p style="font-size: 1.3rem;">Powered by Pro'VerBs™ & ADAPPT-I™ Technology</p>
         <div>
@@ -284,6 +294,11 @@ with demo:
             ### 🎵 Supertonic Audio Processing
             - Upload and analyze audio files
             - AI-powered transcription
+            
+            ### 🧩 Legal Intelligence Modules
+            Explore our vast catalog of **170+ specialized legal modules** including:
+            - **Ecclesiastical Law**, **Jurisprudence Ethics**, **Bitcoin Protocol**, **Law Coin**, **Smart Contract Deployer**, and more.
+            - [Click here to view the full Modules Catalog](https://github.com/Solomon7890-jpeg/Solomon7890-jpeg/blob/main/MODULES_CATALOG.md)
             
             **Ready to experience the most advanced legal AI? Click "Ultimate AI Chatbot"!**
             """)
