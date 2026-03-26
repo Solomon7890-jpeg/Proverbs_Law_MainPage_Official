@@ -12,6 +12,8 @@ import asyncio
 from datetime import datetime
 from typing import Dict, List, Optional
 import requests
+import google.generativeai as genai
+import httpx
 
 # Import Unified Brain
 from unified_brain import UnifiedBrain, ReasoningContext
@@ -191,6 +193,69 @@ async def respond_with_ultimate_brain(
                         continue
         except Exception as e:
             yield f"{response}\n\n❌ GPT-4 Error: {str(e)}"
+    
+    elif ai_provider == "gemini":
+        api_key = os.getenv("GOOGLE_API_KEY")
+        if not api_key:
+            yield "⚠️ Google API key not set. Add GOOGLE_API_KEY to Space secrets."
+            return
+        
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel("gemini-1.5-pro")
+        
+        response = reasoning_info if use_reasoning and brain_result['reasoning_result'] else ""
+        try:
+            chat_response = model.generate_content(
+                brain_result['enhanced_query'],
+                stream=True,
+                generation_config=genai.types.GenerationConfig(
+                    max_output_tokens=max_tokens,
+                    temperature=temperature,
+                    top_p=top_p
+                )
+            )
+            for chunk in chat_response:
+                if chunk.text:
+                    response += chunk.text
+                    yield response
+        except Exception as e:
+            yield f"{response}\n\n❌ Gemini Error: {str(e)}"
+
+    elif ai_provider == "perplexity":
+        api_key = os.getenv("PERPLEXITY_API_KEY")
+        if not api_key:
+            yield "⚠️ Perplexity API key not set. Add PERPLEXITY_API_KEY to Space secrets."
+            return
+            
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        
+        data = {
+            "model": "llama-3.1-sonar-large-128k-online",
+            "messages": [{"role": "user", "content": brain_result['enhanced_query']}],
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+            "stream": True
+        }
+        
+        response = reasoning_info if use_reasoning and brain_result['reasoning_result'] else ""
+        try:
+            async with httpx.AsyncClient() as client:
+                async with client.stream("POST", "https://api.perplexity.ai/chat/completions", 
+                                        headers=headers, json=data, timeout=30.0) as resp:
+                    async for line in resp.aiter_lines():
+                        if line and line.startswith('data: ') and line != 'data: [DONE]':
+                            try:
+                                json_data = json.loads(line[6:])
+                                if json_data['choices'][0]['delta'].get('content'):
+                                    response += json_data['choices'][0]['delta']['content']
+                                    yield response
+                            except:
+                                continue
+        except Exception as e:
+            yield f"{response}\n\n❌ Perplexity Error: {str(e)}"
     
     else:
         yield "⚠️ Selected AI provider not yet configured. Using HuggingFace..."
