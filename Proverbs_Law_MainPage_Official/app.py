@@ -257,6 +257,68 @@ async def respond_with_ultimate_brain(
         except Exception as e:
             yield f"{response}\n\n❌ Perplexity Error: {str(e)}"
     
+    elif ai_provider == "ninjaai":
+        api_key = os.getenv("NINJAAI_API_KEY")
+        if not api_key:
+            yield "⚠️ NinjaAI API key not set. Add NINJAAI_API_KEY to Space secrets."
+            return
+            
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        
+        data = {
+            "model": "gpt-4",
+            "messages": [{"role": "user", "content": brain_result['enhanced_query']}],
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+            "stream": True
+        }
+        
+        response = reasoning_info if use_reasoning and brain_result['reasoning_result'] else ""
+        try:
+            resp = requests.post("https://api.ninjachat.ai/v1/chat/completions", 
+                                headers=headers, json=data, stream=True)
+            for line in resp.iter_lines():
+                if line and line.startswith(b'data: ') and line != b'data: [DONE]':
+                    try:
+                        json_data = json.loads(line[6:])
+                        if json_data['choices'][0]['delta'].get('content'):
+                            response += json_data['choices'][0]['delta']['content']
+                            yield response
+                    except:
+                        continue
+        except Exception as e:
+            yield f"{response}\n\n❌ NinjaAI Error: {str(e)}"
+
+    elif ai_provider == "lmstudio":
+        headers = {"Content-Type": "application/json"}
+        data = {
+            "messages": [{"role": "user", "content": brain_result['enhanced_query']}],
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+            "stream": True
+        }
+        
+        response = reasoning_info if use_reasoning and brain_result['reasoning_result'] else ""
+        try:
+            resp = requests.post("http://localhost:1234/v1/chat/completions", 
+                                headers=headers, json=data, stream=True, timeout=5)
+            for line in resp.iter_lines():
+                if line and line.startswith(b'data: ') and line != b'data: [DONE]':
+                    try:
+                        json_data = json.loads(line[6:])
+                        if json_data['choices'][0]['delta'].get('content'):
+                            response += json_data['choices'][0]['delta']['content']
+                            yield response
+                    except:
+                        continue
+        except requests.exceptions.ConnectionError:
+            yield f"{response}\n\n⚠️ LM Studio not detected on localhost:1234. Ensure the server is running."
+        except Exception as e:
+            yield f"{response}\n\n❌ LM Studio Error: {str(e)}"
+    
     else:
         yield "⚠️ Selected AI provider not yet configured. Using HuggingFace..."
 
