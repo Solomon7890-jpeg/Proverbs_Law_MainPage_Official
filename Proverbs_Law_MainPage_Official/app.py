@@ -22,6 +22,9 @@ from unified_brain import UnifiedBrain, ReasoningContext
 from performance_optimizer import performance_cache, performance_monitor, with_caching
 from analytics_seo import analytics_tracker, SEOOptimizer
 
+# Import HF Auth
+from hf_auth_module import auth_manager, create_login_interface
+
 class UltimateLegalBrain:
     """
     Ultimate Legal AI Brain combining:
@@ -161,7 +164,11 @@ async def respond_with_ultimate_brain(
                     response += chunk.choices[0].delta.content
                     yield response
         except Exception as e:
-            yield f"{response}\n\n❌ Error: {str(e)}"
+            # Handle authentication errors specifically
+            if "401" in str(e) or "authorization" in str(e).lower():
+                yield f"{response}\n\n❌ **Authentication Error:** Please login in the '🔐 Authentication' tab to use the HuggingFace model."
+            else:
+                yield f"{response}\n\n❌ Error: {str(e)}"
     
     elif ai_provider == "gpt4":
         api_key = os.getenv("OPENAI_API_KEY")
@@ -382,6 +389,12 @@ with demo:
     """)
     
     with gr.Tabs():
+        app_token_state = gr.State(None) # Central token state
+        
+        # Authentication Tab (NEW)
+        with gr.Tab("🔐 Authentication"):
+            login_ui = create_login_interface(app_token_state)
+            
         # Welcome Tab
         with gr.Tab("🏠 Welcome"):
             gr.Markdown("""
@@ -496,7 +509,8 @@ with demo:
                     use_reasoning_toggle,
                     gr.Slider(128, 4096, value=2048, step=128, label="Max Tokens"),
                     gr.Slider(0.1, 2.0, value=0.7, step=0.1, label="Temperature"),
-                    gr.Slider(0.1, 1.0, value=0.95, step=0.05, label="Top-p")
+                    gr.Slider(0.1, 1.0, value=0.95, step=0.05, label="Top-p"),
+                    app_token_state # Use the central token state 
                 ],
                 examples=[
                     ["What reasoning protocols are available?"],

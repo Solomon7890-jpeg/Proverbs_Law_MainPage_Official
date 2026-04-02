@@ -133,8 +133,12 @@ class HFAuthManager:
 auth_manager = HFAuthManager()
 
 
-def create_login_interface():
-    """Create login interface component"""
+def create_login_interface(app_token_state: gr.State):
+    """
+    Create login interface component
+    
+    app_token_state: Gradio State component to sync token with main app
+    """
     
     with gr.Blocks() as login_ui:
         gr.Markdown("""
@@ -239,7 +243,8 @@ def create_login_interface():
                     gr.update(visible=True),  # profile_row
                     gr.update(visible=True),  # session_row
                     profile_info,  # user_info_json
-                    session_text  # session_info
+                    session_text,  # session_info
+                    token          # [NEW] Return token for state tracking
                 )
             else:
                 return (
@@ -251,7 +256,8 @@ def create_login_interface():
                     gr.update(visible=False),  # profile_row
                     gr.update(visible=False),  # session_row
                     {},  # user_info_json
-                    ""  # session_info
+                    "",  # session_info
+                    None # [NEW] Return None
                 )
         
         # Logout handler
@@ -267,7 +273,8 @@ def create_login_interface():
                 gr.update(visible=False),  # profile_row
                 gr.update(visible=False),  # session_row
                 {},  # user_info_json
-                ""  # session_info
+                "",  # session_info
+                None # [NEW] Return None
             )
         
         login_btn.click(
@@ -282,7 +289,8 @@ def create_login_interface():
                 profile_row,
                 session_row,
                 user_info_json,
-                session_info
+                session_info,
+                app_token_state
             ]
         )
         
@@ -298,7 +306,8 @@ def create_login_interface():
                 profile_row,
                 session_row,
                 user_info_json,
-                session_info
+                session_info,
+                app_token_state
             ]
         )
         
