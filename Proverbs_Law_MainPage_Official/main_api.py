@@ -9,6 +9,7 @@ import gradio as gr
 from typing import List, Dict, Optional, Any
 from expert_router import ExpertRouter
 from status_correction_module import StatusCorrectionModule
+from harmonic_sequencer import HarmonicSequencer
 
 # Import the core reasoning brain and Gradio interface
 from unified_brain import UnifiedBrain, ReasoningContext
@@ -40,6 +41,7 @@ brain = UnifiedBrain()
 discovery_engine = ModelDiscoveryEngine()
 router = ExpertRouter()
 corrector = StatusCorrectionModule()
+sequencer = HarmonicSequencer()
 
 @app.get("/api/health")
 async def health_check():
@@ -51,10 +53,12 @@ async def chat_stream(request: ChatRequest):
     Status-Aware AI Stream. 
     Calibrates reasoning based on 'Sovereign' vs 'Commercial' standing.
     """
-    logic_tier = router.determine_logic_tier(request.message, request.user_status)
-    experts = router.get_expert_consensus(request.message, logic_tier)
+    # 1. Harmonic Wave Sequencing
+    sequenced_logic = sequencer.sequence_logic([{"result": experts}])
+    sequencer.resequence_by_status(request.user_status or "commercial")
+    harmonic_output = sequencer.get_final_harmonic_output()
     
-    # Trigger Status Correction if requested
+    # 2. Trigger Status Correction if requested
     if "correct status" in request.message.lower() or "reclaim standing" in request.message.lower():
         correction_report = corrector.generate_correction_roadmap(request.user_status or "commercial")
         print(f"⚖️ Status Correction Roadmap Generated: {correction_report}")

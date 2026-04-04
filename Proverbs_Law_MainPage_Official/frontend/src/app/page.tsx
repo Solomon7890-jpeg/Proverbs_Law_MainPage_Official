@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import Hero3D from "@/components/Hero3D";
+import AudioEngine from "@/components/AudioEngine";
 
 const logos = ["/logo_1.jpg", "/logo_2.jpg", "/logo_3.jpg"];
 
@@ -327,6 +328,9 @@ export default function Home() {
           © 2024 ProVerBs Legal AI. Built by Solomon7890.
         </p>
       </footer>
+
+      {/* Sovereign Soundscape Engine */}
+      <AudioEngine />
     </div>
   );
 }

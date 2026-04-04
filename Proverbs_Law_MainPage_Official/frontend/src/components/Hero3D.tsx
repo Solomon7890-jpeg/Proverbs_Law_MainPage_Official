@@ -1,39 +1,68 @@
 "use client";
 
 import React, { useRef, useMemo } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, RootState } from "@react-three/fiber";
 import { Points, PointMaterial, OrbitControls, Float } from "@react-three/drei";
 import * as THREE from "three";
 
+// Stable Harmonic Particle Generator (Moved outside to satisfy React Purity)
+const generatePositions = (count: number) => {
+  const pos = new Float32Array(count * 3);
+  const orig = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(Math.random() * 2 - 1);
+    const r = 2.5 + Math.random() * 0.5;
+    
+    const x = r * Math.sin(phi) * Math.cos(theta);
+    const y = r * Math.sin(phi) * Math.sin(theta);
+    const z = r * Math.cos(phi);
+    
+    pos[i * 3] = x;
+    pos[i * 3 + 1] = y;
+    pos[i * 3 + 2] = z;
+
+    orig[i * 3] = x;
+    orig[i * 3 + 1] = y;
+    orig[i * 3 + 2] = z;
+  }
+  return { positions: pos, originalPositions: orig };
+};
+
 function BrainParticles() {
   const ref = useRef<THREE.Points>(null!);
+  const count = 3000;
   
-  // Create a sphere of particles representing the "Ultimate Brain"
-  const count = 2000;
-  const positions = useMemo(() => {
-    const pos = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(Math.random() * 2 - 1);
-      const r = 2 + Math.random() * 0.5; // Radius with slight variation
-      
-      pos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-      pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
-      pos[i * 3 + 2] = r * Math.cos(phi);
-    }
-    return pos;
-  }, []);
+  // Memoize the stable positions to prevent re-generation on re-render
+  const { positions, originalPositions } = useMemo(() => generatePositions(count), [count]);
 
-  useFrame((state) => {
+  useFrame((state: RootState) => {
     const time = state.clock.getElapsedTime();
     
-    // Pulsing and slow rotation
-    ref.current.rotation.y = time * 0.1;
-    ref.current.rotation.z = time * 0.05;
-    
-    // Subtle scale pulsing like a "Heartbeat" of intelligence
-    const scale = 1 + Math.sin(time * 0.5) * 0.05;
-    ref.current.scale.set(scale, scale, scale);
+    // Global rotation for the "Collective Intelligence"
+    if (ref.current) {
+        ref.current.rotation.y = time * 0.05;
+        
+        // Harmonic Wave Sequencing Logic
+        const positionsArray = ref.current.geometry.attributes.position.array as Float32Array;
+        for (let i = 0; i < count; i++) {
+          const x = originalPositions[i * 3];
+          const y = originalPositions[i * 3 + 1];
+          const z = originalPositions[i * 3 + 2];
+          
+          const dist = Math.sqrt(x * x + y * y + z * z);
+          const wave = Math.sin(dist * 2.0 - time * 2.5) * 0.2;
+          
+          positionsArray[i * 3] = x + (x / dist) * wave;
+          positionsArray[i * 3 + 1] = y + (y / dist) * wave;
+          positionsArray[i * 3 + 2] = z + (z / dist) * wave;
+        }
+        
+        ref.current.geometry.attributes.position.needsUpdate = true;
+        
+        const scale = 1 + Math.sin(time * 0.5) * 0.03;
+        ref.current.scale.set(scale, scale, scale);
+    }
   });
 
   return (
