@@ -21,7 +21,7 @@ class HFAuthManager:
         self.sessions = {}  # {username: {token, expires, profile}}
         self.session_duration = timedelta(hours=24)
     
-    def login(self, hf_token: str) -> Tuple[bool, str, Optional[Dict]]:
+    def login(self, hf_token: str, user_email: str = "") -> Tuple[bool, str, Optional[Dict]]:
         """
         Login with HuggingFace token
         
@@ -32,20 +32,25 @@ class HFAuthManager:
             return False, "⚠️ Please enter your HuggingFace token", None
         
         token = hf_token.strip()
+        supplied_email = user_email.strip() if user_email else ""
         
         try:
             # Verify token and get user info
             user_info = whoami(token=token)
             
             username = user_info.get('name', 'Unknown')
-            email = user_info.get('email', 'N/A')
+            hf_email = user_info.get('email', 'N/A')
             avatar_url = user_info.get('avatarUrl', '')
+            
+            # Use user-supplied email if provided, otherwise fall back to HF profile email
+            contact_email = supplied_email if supplied_email else hf_email
             
             # Create session
             session = {
                 'token': token,
                 'username': username,
-                'email': email,
+                'email': hf_email,
+                'contact_email': contact_email,
                 'avatar_url': avatar_url,
                 'login_time': datetime.now(),
                 'expires': datetime.now() + self.session_duration,
@@ -59,7 +64,8 @@ class HFAuthManager:
 
 **Welcome, {username}!**
 
-📧 Email: {email}
+📧 Contact Email: {contact_email}
+🆔 HuggingFace Email: {hf_email}
 🕐 Logged in: {session['login_time'].strftime('%Y-%m-%d %H:%M:%S')}
 ⏰ Session expires: {session['expires'].strftime('%Y-%m-%d %H:%M:%S')}
 
@@ -140,8 +146,7 @@ def create_login_interface(app_token_state: gr.State):
     app_token_state: Gradio State component to sync token with main app
     """
     
-    with gr.Blocks() as login_ui:
-        gr.Markdown("""
+    gr.Markdown("""
         # 🔐 HuggingFace User Authentication
         
         **Secure Login for ProVerBs Ultimate Brain**
@@ -181,6 +186,14 @@ def create_login_interface(app_token_state: gr.State):
                 gr.Markdown("## 🔑 Login")
                 
                 with gr.Group():
+                    email_input = gr.Textbox(
+                        label="📧 Your Email Address",
+                        placeholder="you@example.com",
+                        type="email",
+                        lines=1,
+                        info="Provide your email for account metrics & notifications"
+                    )
+                    
                     token_input = gr.Textbox(
                         label="HuggingFace Token",
                         placeholder="hf_...",
@@ -214,14 +227,15 @@ def create_login_interface(app_token_state: gr.State):
                 session_info = gr.Markdown("")
         
         # Login handler
-        def handle_login(token):
-            success, message, session = auth_manager.login(token)
+        def handle_login(email, token):
+            success, message, session = auth_manager.login(token, user_email=email)
             
             if success:
                 username = session['username']
                 profile_info = {
                     "Username": username,
-                    "Email": session['email'],
+                    "Contact Email": session['contact_email'],
+                    "HF Email": session['email'],
                     "Login Time": session['login_time'].strftime('%Y-%m-%d %H:%M:%S'),
                     "Session Expires": session['expires'].strftime('%Y-%m-%d %H:%M:%S'),
                     "Active Users": auth_manager.get_active_users_count()
@@ -230,12 +244,14 @@ def create_login_interface(app_token_state: gr.State):
                 session_text = f"""
 **Session Active**
 - Username: **{username}**
+- Contact Email: **{session['contact_email']}**
 - Logged in: {session['login_time'].strftime('%H:%M:%S')}
 - Expires: {session['expires'].strftime('%H:%M:%S')}
                 """
                 
                 return (
                     message,  # login_status
+                    gr.update(visible=False),  # email_input
                     gr.update(visible=False),  # token_input
                     gr.update(visible=False),  # login_btn
                     gr.update(value=username, visible=True),  # username_display
@@ -244,11 +260,12 @@ def create_login_interface(app_token_state: gr.State):
                     gr.update(visible=True),  # session_row
                     profile_info,  # user_info_json
                     session_text,  # session_info
-                    token          # [NEW] Return token for state tracking
+                    token          # Return token for state tracking
                 )
             else:
                 return (
                     message,  # login_status
+                    gr.update(visible=True),  # email_input
                     gr.update(visible=True),  # token_input
                     gr.update(visible=True),  # login_btn
                     gr.update(visible=False),  # username_display
@@ -257,7 +274,7 @@ def create_login_interface(app_token_state: gr.State):
                     gr.update(visible=False),  # session_row
                     {},  # user_info_json
                     "",  # session_info
-                    None # [NEW] Return None
+                    None # Return None
                 )
         
         # Logout handler
@@ -266,6 +283,7 @@ def create_login_interface(app_token_state: gr.State):
             
             return (
                 f"✅ {message}\n\nYou can login again anytime.",  # login_status
+                gr.update(visible=True, value=""),  # email_input
                 gr.update(visible=True, value=""),  # token_input
                 gr.update(visible=True),  # login_btn
                 gr.update(visible=False, value=""),  # username_display
@@ -274,14 +292,15 @@ def create_login_interface(app_token_state: gr.State):
                 gr.update(visible=False),  # session_row
                 {},  # user_info_json
                 "",  # session_info
-                None # [NEW] Return None
+                None # Return None
             )
         
         login_btn.click(
             handle_login,
-            inputs=[token_input],
+            inputs=[email_input, token_input],
             outputs=[
                 login_status,
+                email_input,
                 token_input,
                 login_btn,
                 username_display,
@@ -299,6 +318,7 @@ def create_login_interface(app_token_state: gr.State):
             inputs=[username_display],
             outputs=[
                 login_status,
+                email_input,
                 token_input,
                 login_btn,
                 username_display,
@@ -355,9 +375,8 @@ def create_login_interface(app_token_state: gr.State):
                 ProVerBs Ultimate Brain | © 2025 Solomon 8888
             </p>
         </div>
-        """)
-    
-    return login_ui
+    """)
+
 
 
 def require_auth(func):
