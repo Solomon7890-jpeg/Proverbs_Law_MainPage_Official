@@ -1,10 +1,12 @@
 from huggingface_hub import HfApi
 import json
 import os
+from firecrawl_scout import UniversalScoutEngine
 
 class ModelDiscoveryEngine:
     def __init__(self):
         self.api = HfApi()
+        self.scout = UniversalScoutEngine()
         self.config_path = "dynamic_models.json"
         
     def discover_latest_legal_models(self) -> dict:
@@ -12,8 +14,11 @@ class ModelDiscoveryEngine:
         Queries HuggingFace for top 5 legal models by likes.
         """
         try:
-            print("🔍 Querying HuggingFace for state-of-the-art Legal models...")
-            # Query the hub for legal domain models
+            # 1. Scout the Global Legal Tech Web (Deep Discovery)
+            print("🌊 Engaged Global Firecrawl Scout for Legal AI Breakthroughs...")
+            scout_news = self.scout.scout_legal_domain("https://huggingface.co/blog?tag=legal")
+            
+            # 2. Query the hub for legal domain models
             models = self.api.list_models(
                 filter="legal",
                 sort="likes",

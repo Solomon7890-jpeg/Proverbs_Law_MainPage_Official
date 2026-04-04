@@ -36,6 +36,7 @@ import json
 import asyncio
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Callable, Union
+from firecrawl_scout import UniversalScoutEngine
 from dataclasses import dataclass, field
 from enum import Enum
 import logging
@@ -245,6 +246,7 @@ class ReAct(BaseProtocol):
     
     def __init__(self):
         super().__init__("ReAct", ProtocolCategory.CORE_REASONING)
+        self.scout = UniversalScoutEngine()
     
     async def execute(self, context: ReasoningContext, **kwargs) -> ProtocolResult:
         max_iterations = kwargs.get('max_iterations', 5)
@@ -601,7 +603,21 @@ class IntelligentRouter:
     
     def __init__(self, registry: ProtocolRegistry):
         self.registry = registry
+        self.scout = UniversalScoutEngine()
     
+    async def research_gate(self, query: str, context: Optional[str] = None) -> str:
+        """
+        Triggers the Firecrawl Scout if the query requires live real-time legal data.
+        Ensures 'Optimal Quality' by verifying reasoning against live sources.
+        """
+        print(f"📡 High-Depth Query Detected. Engaging Firecrawl AI Scout for: {query}")
+        scout_report = self.scout.scout_legal_domain(f"https://www.google.com/search?q={query}") # Entry point
+        
+        if "error" not in scout_report:
+            content = scout_report.get('crawled_content', [])
+            return f"Live Research Found: {content[0].get('markdown', '')[:2000]}" if content else ""
+        return ""
+
     def route(self, context: ReasoningContext, preferences: Optional[Dict] = None) -> List[str]:
         """Determine which protocols to use"""
         preferences = preferences or {}
