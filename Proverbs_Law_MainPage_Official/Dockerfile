@@ -17,9 +17,12 @@ COPY . .
 
 EXPOSE 7860
 
-# Ensure environmental output is not buffered
-ENV PYTHONUNBUFFERED=1
+# Production Environment
 ENV PORT=8080
+ENV PYTHONUNBUFFERED=1
 
-# Production command for Cloud Run (scaling via uvicorn)
-CMD ["uvicorn", "main_api:app", "--host", "0.0.0.0", "--port", "8080", "--workers", "4"]
+# Expose port for Cloud Run
+EXPOSE 8080
+
+# Production Entrypoint: Uvicorn with optimized workers for Status-Aware Intelligence
+CMD ["uvicorn", "main_api:app", "--host", "0.0.0.0", "--port", "8080", "--workers", "4", "--timeout-keep-alive", "65"]
