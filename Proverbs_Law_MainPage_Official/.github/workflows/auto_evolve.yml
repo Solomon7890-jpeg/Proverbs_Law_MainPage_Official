@@ -1,0 +1,36 @@
+name: "🧬 ProVerBs Auto-Evolution"
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # Runs daily at midnight
+  workflow_dispatch: # Allows manual trigger for "High Performance" updates
+
+jobs:
+  evolve:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Clone Repository"
+        uses: actions/checkout@v4
+
+      - name: "Authenticate to Google Cloud"
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: "${{ secrets.GCP_SA_KEY }}"
+
+      - name: "Set up GCloud SDK"
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: "Authorize Docker"
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev
+
+      - name: "Build & Evolution Deployment"
+        run: |
+          docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/proverbs-law/ultimate-brain:latest .
+          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/proverbs-law/ultimate-brain:latest
+          
+          gcloud run deploy proverbs-ultimate-brain \
+            --image us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/proverbs-law/ultimate-brain:latest \
+            --region us-central1 \
+            --platform managed \
+            --allow-unauthenticated \
+            --update-env-vars AUTO_EVOLVE_LAST_RUN=$(date +%s)
