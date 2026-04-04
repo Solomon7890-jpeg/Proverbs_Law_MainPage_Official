@@ -6,7 +6,9 @@ import json
 import asyncio
 import os
 import gradio as gr
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
+from expert_router import ExpertRouter
+from status_correction_module import StatusCorrectionModule
 
 # Import the core reasoning brain and Gradio interface
 from unified_brain import UnifiedBrain, ReasoningContext
@@ -26,12 +28,18 @@ app.add_middleware(
 
 class ChatRequest(BaseModel):
     message: str
+    history: List[List[str]] = []
+    user_status: Optional[str] = "Commercial"
+    expertise_level: Optional[str] = "Beginner"
+    preferences: Optional[Dict] = None
     mode: str = "general"
     model: str = "huggingface"
     token: Optional[str] = None
 
 brain = UnifiedBrain()
 discovery_engine = ModelDiscoveryEngine()
+router = ExpertRouter()
+corrector = StatusCorrectionModule()
 
 @app.get("/api/health")
 async def health_check():
@@ -40,10 +48,17 @@ async def health_check():
 @app.post("/api/chat/stream")
 async def chat_stream(request: ChatRequest):
     """
-    Streaming endpoint for the 3D Immersive Frontend.
-    Provides real-time reasoning protocol trace + AI response.
+    Status-Aware AI Stream. 
+    Calibrates reasoning based on 'Sovereign' vs 'Commercial' standing.
     """
+    logic_tier = router.determine_logic_tier(request.message, request.user_status)
+    experts = router.get_expert_consensus(request.message, logic_tier)
     
+    # Trigger Status Correction if requested
+    if "correct status" in request.message.lower() or "reclaim standing" in request.message.lower():
+        correction_report = corrector.generate_correction_roadmap(request.user_status or "commercial")
+        print(f"⚖️ Status Correction Roadmap Generated: {correction_report}")
+
     async def event_generator():
         try:
             # 1. Yield Reasoning Trace

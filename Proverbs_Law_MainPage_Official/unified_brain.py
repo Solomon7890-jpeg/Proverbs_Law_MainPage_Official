@@ -37,6 +37,7 @@ import asyncio
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Callable, Union
 from firecrawl_scout import UniversalScoutEngine
+from status_correction_module import StatusCorrectionModule
 from dataclasses import dataclass, field
 from enum import Enum
 import logging
@@ -331,6 +332,25 @@ class RAG(BaseProtocol):
         )
 
 
+class StatusCorrectionProtocol(BaseProtocol):
+    """Protocol 16: Status-based reasoning correction"""
+    
+    def __init__(self):
+        super().__init__("Status-Correction", ProtocolCategory.VERIFICATION)
+        self.corrector = StatusCorrectionModule()
+    
+    async def execute(self, context: ReasoningContext, **kwargs) -> ProtocolResult:
+        # Apply correction logic
+        corrected_output = self.corrector.correct(context.query)
+        
+        return ProtocolResult(
+            protocol_name=self.name,
+            status=ExecutionStatus.SUCCESS,
+            output=corrected_output,
+            reasoning_trace=["Analyzed status triggers", "Applied correction logic"]
+        )
+
+
 # ============================================================================
 # QUANTUM‑SPECIFIC PROTOCOLS (51‑100)
 # ============================================================================
@@ -564,6 +584,7 @@ class ProtocolRegistry:
         self.register(ReAct())
         self.register(Reflexion())
         self.register(RAG())
+        self.register(StatusCorrectionProtocol())
         
         # Quantum‑specific (51‑100)
         self.register(QuantumJobOrchestration())

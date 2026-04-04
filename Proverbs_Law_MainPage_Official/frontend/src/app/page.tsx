@@ -75,6 +75,8 @@ const modules = [
 
 export default function Home() {
   const [currentLogo, setCurrentLogo] = useState(0);
+  const [userStatus, setUserStatus] = useState<"God Being" | "Commercial">("Commercial");
+  const [expertiseLevel, setExpertiseLevel] = useState<"Beginner" | "Practitioner" | "Master">("Beginner");
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -142,6 +144,68 @@ export default function Home() {
           </div>
         </div>
       </header>
+
+      {/* Dimensional Calibration Dashboard */}
+      <section className="relative z-20 -mt-8 pb-8 flex justify-center">
+        <div className="mx-auto w-full max-w-4xl px-6">
+          <div className="rounded-3xl border border-zinc-800 bg-zinc-900/40 p-1 backdrop-blur-xl shadow-2xl overflow-hidden">
+            <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-zinc-800">
+              
+              {/* Status Selector */}
+              <div className="flex-1 p-6">
+                <div className="mb-4 flex items-center justify-between">
+                  <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-500">Status Calibration</h3>
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${userStatus === "God Being" ? "bg-yellow-900/30 text-[#eab308]" : "bg-blue-900/30 text-blue-400"}`}>
+                    {userStatus === "God Being" ? "Sovereign" : "Corporate"}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 p-1 bg-zinc-950/50 rounded-xl">
+                  {["Commercial", "God Being"].map((status) => (
+                    <button
+                      key={status}
+                      onClick={() => setUserStatus(status as any)}
+                      className={`py-2 px-4 rounded-lg text-sm font-medium transition-all ${
+                        userStatus === status 
+                        ? (status === "God Being" ? "bg-[#eab308] text-zinc-950 shadow-lg" : "bg-blue-600 text-white shadow-lg")
+                        : "text-zinc-500 hover:text-zinc-300"
+                      }`}
+                    >
+                      {status}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Expertise Selector */}
+              <div className="flex-1 p-6">
+                <div className="mb-4 flex items-center justify-between">
+                  <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-500">Comprehension Level</h3>
+                  <span className="text-xs font-bold text-[#9C8E7D]">{expertiseLevel} Level</span>
+                </div>
+                <div className="grid grid-cols-3 gap-2 p-1 bg-zinc-950/50 rounded-xl">
+                  {["Beginner", "Practitioner", "Master"].map((level) => (
+                    <button
+                      key={level}
+                      onClick={() => setExpertiseLevel(level as any)}
+                      className={`py-2 px-1 rounded-lg text-xs font-medium transition-all ${
+                        expertiseLevel === level 
+                        ? "bg-[#9C8E7D] text-zinc-950 shadow-lg"
+                        : "text-zinc-500 hover:text-zinc-300"
+                      }`}
+                    >
+                      {level}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <p className="mt-4 text-center text-xs text-zinc-500 italic">
+            Motto: &ldquo;Small and Gigantically Robust&rdquo; &bull; Privacy & Speed Calibrated
+          </p>
+        </div>
+      </section>
 
       {/* Stats Bar */}
       <section className="border-y border-zinc-800 bg-zinc-900/50">
