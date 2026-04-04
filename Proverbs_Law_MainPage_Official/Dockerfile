@@ -19,5 +19,7 @@ EXPOSE 7860
 
 # Ensure environmental output is not buffered
 ENV PYTHONUNBUFFERED=1
+ENV PORT=8080
 
-CMD ["python", "app.py"]
+# Production command for Cloud Run (scaling via uvicorn)
+CMD ["uvicorn", "main_api:app", "--host", "0.0.0.0", "--port", "8080", "--workers", "4"]

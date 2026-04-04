@@ -5,11 +5,13 @@ from pydantic import BaseModel
 import json
 import asyncio
 import os
+import gradio as gr
 from typing import List, Dict, Optional
 
-# Import the core reasoning brain
+# Import the core reasoning brain and Gradio interface
 from unified_brain import UnifiedBrain, ReasoningContext
 from intelligence_discovery import ModelDiscoveryEngine
+from app import create_login_interface # Assuming app.py is refactored to export the block
 
 app = FastAPI(title="ProVerBs Legal AI - Ultimate Brain API")
 
@@ -90,6 +92,14 @@ async def self_evolve(background_tasks: BackgroundTasks):
 
     background_tasks.add_task(run_discovery)
     return {"status": "Evolving...", "cycle": "24h"}
+
+# Mount the Legacy Gradio UI for developers/internal use
+# Ensure app.py has a function that returns the Blocks interface
+try:
+    from app import demo as gradio_demo
+    app = gr.mount_gradio_app(app, gradio_demo, path="/gradio")
+except Exception as e:
+    print(f"⚠️ Could not mount Gradio UI: {e}")
 
 if __name__ == "__main__":
     import uvicorn

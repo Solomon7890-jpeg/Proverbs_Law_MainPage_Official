@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import Hero3D from "@/components/Hero3D";
 
 const logos = ["/logo_1.jpg", "/logo_2.jpg", "/logo_3.jpg"];
 
@@ -84,39 +85,43 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
-      {/* Hero Section */}
-      <header className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(156,142,125,0.12),transparent_50%)]" />
+      {/* Hero Section with 3D Immersive Brain */}
+      <header className="relative min-h-[70vh] overflow-hidden flex items-center justify-center border-b border-zinc-800">
+        <Hero3D />
+        
+        {/* Overlay Gradients for Depth */}
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-zinc-950/50 pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(30,58,138,0.2),transparent_70%)] pointer-events-none" />
 
-        <div className="relative mx-auto max-w-5xl px-6 py-20 text-center">
-          {/* Rotating Logo */}
-          <div className="mb-8 flex justify-center">
-            <div className="relative h-36 w-36 overflow-hidden rounded-full border-4 border-[#9C8E7D] shadow-[0_12px_48px_rgba(0,0,0,0.5)]">
+        <div className="relative z-10 mx-auto max-w-5xl px-6 py-20 text-center">
+          {/* Rotating Logo with Glassmorphism */}
+          <div className="mb-10 flex justify-center">
+            <div className="relative h-44 w-44 overflow-hidden rounded-full border-4 border-[#eab308] shadow-[0_0_80px_rgba(234,179,8,0.2)] bg-zinc-900/40 backdrop-blur-sm">
               {logos.map((logo, i) => (
                 <Image
                   key={logo}
                   src={logo}
                   alt={`ProVerBs Logo ${i + 1}`}
                   fill
-                  className={`object-cover transition-opacity duration-1000 ${
-                    i === currentLogo ? "opacity-100" : "opacity-0"
+                  className={`object-cover transition-opacity duration-1500 ease-in-out ${
+                    i === currentLogo ? "opacity-100 scale-105" : "opacity-0 scale-100"
                   }`}
+                  style={{ transition: 'opacity 1.5s ease-in-out, transform 1.5s ease-in-out' }}
                   priority={i === 0}
                 />
               ))}
             </div>
           </div>
 
-          <h1 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-            ⚖️ ProVerBs Legal AI Platform
+          <h1 className="mb-6 text-5xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl bg-clip-text text-transparent bg-gradient-to-b from-white to-zinc-400">
+            ⚖️ ProVerBs Corporate
           </h1>
-          <p className="mb-2 text-lg text-[#9C8E7D]">
+          <p className="mb-4 text-xl font-medium tracking-wide text-[#eab308] uppercase">
             Lawful vs. Legal: Dual Analysis &ldquo;Adappt&apos;plication&rdquo;
           </p>
-          <p className="mx-auto max-w-2xl text-zinc-400">
-            Professional Legal AI System &bull; Multi-Module Platform &bull;
-            Powered by Advanced AI &bull; 100+ Reasoning Protocols
+          <p className="mx-auto max-w-2xl text-lg text-zinc-400 leading-relaxed">
+            Ultimate Brain Rendering Level &bull; 100+ Reasoning Protocols &bull;
+            Autonomous Intelligence Evolution &bull; Industry Global Pro Set Up
           </p>
 
           <div className="mt-8 flex flex-wrap justify-center gap-4">
