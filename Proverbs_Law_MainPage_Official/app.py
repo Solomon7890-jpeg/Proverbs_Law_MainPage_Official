@@ -370,8 +370,8 @@ with demo:
     gr.HTML("""
     <div class="header-section">
         <div style="display: flex; justify-content: center; align-items: center; gap: 40px; flex-wrap: wrap;">
-            <img src="https://huggingface.co/spaces/Solomon7890/Proverbs_Law_MainPage_Official/resolve/main/logo.png" class="header-logo" onerror="this.src='/file/logo.png'">
-            <img src="https://huggingface.co/spaces/Solomon7890/Proverbs_Law_MainPage_Official/resolve/main/mascot.png" style="width: 200px; height: 200px; border-radius: 20px;" onerror="this.src='/file/mascot.png'">
+            <img src="file/assets/logo_main.jpg" class="header-logo">
+            <img src="file/assets/logo_1.jpg" style="width: 200px; height: 200px; border-radius: 20px;">
         </div>
         <h1>⚖️ ProVerBs Ultimate Legal AI Brain</h1>
         <p style="font-size: 1.3rem;">Powered by Pro'VerBs™ & ADAPPT-I™ Technology</p>
