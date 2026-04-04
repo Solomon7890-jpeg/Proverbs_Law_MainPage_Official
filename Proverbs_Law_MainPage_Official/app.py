@@ -393,7 +393,7 @@ with demo:
         
         # Authentication Tab (NEW)
         with gr.Tab("🔐 Authentication"):
-            login_ui = create_login_interface(app_token_state)
+            create_login_interface(app_token_state)
             
         # Welcome Tab
         with gr.Tab("🏠 Welcome"):
