@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import json
 import asyncio
@@ -42,6 +43,13 @@ discovery_engine = ModelDiscoveryEngine()
 router = ExpertRouter()
 corrector = StatusCorrectionModule()
 sequencer = HarmonicSequencer()
+
+# Mount the compiled Next.js 3D Frontend
+# This directory is created during the Multi-Stage Docker Build
+if os.path.exists("./frontend-dist"):
+    app.mount("/", StaticFiles(directory="./frontend-dist", html=True), name="frontend")
+else:
+    print("⚠️ Warning: frontend-dist not found. Serving API only.")
 
 @app.get("/api/health")
 async def health_check():
