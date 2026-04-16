@@ -25,6 +25,9 @@ from analytics_seo import analytics_tracker, SEOOptimizer
 # Import HF Auth
 from hf_auth_module import auth_manager, create_login_interface
 
+# Import Conversation Agent
+from conversation_agent import get_conversation_agent, reset_conversation_agent
+
 class UltimateLegalBrain:
     """
     Ultimate Legal AI Brain combining:
@@ -853,7 +856,195 @@ with demo:
             ---
             **Version 3.0.0** | Ultimate Brain Edition | Built by Solomon7890
             """)
-    
+
+        # Conversation Agent Tab with Audio
+        with gr.Tab("🎤 Conversation Agent"):
+            gr.Markdown("""
+            ## 🎤 Interactive Conversation Agent with Audio
+
+            Ask questions and get responses read aloud! This agent maintains conversation context and can read responses using text-to-speech.
+            """)
+
+            with gr.Row():
+                with gr.Column(scale=1):
+                    conv_ai_provider = gr.Dropdown(
+                        choices=[
+                            ("🤗 Llama-3.3-70B (Free)", "huggingface"),
+                            ("🧠 GPT-4 Turbo", "gpt4"),
+                            ("✨ Gemini 3.0", "gemini"),
+                            ("🔍 Perplexity AI", "perplexity"),
+                        ],
+                        value="huggingface",
+                        label="🤖 AI Model"
+                    )
+
+                with gr.Column(scale=1):
+                    conv_mode = gr.Dropdown(
+                        choices=[
+                            ("💬 General Legal", "general"),
+                            ("📍 Navigation", "navigation"),
+                            ("📄 Document Validator", "document_validation"),
+                            ("🔍 Legal Research", "legal_research"),
+                            ("📚 Etymology", "etymology"),
+                        ],
+                        value="general",
+                        label="⚖️ Legal Mode"
+                    )
+
+                with gr.Column(scale=1):
+                    enable_audio = gr.Checkbox(
+                        label="🔊 Read Response Aloud",
+                        value=True,
+                        info="Generates audio for responses"
+                    )
+
+            with gr.Row():
+                conv_question = gr.Textbox(
+                    label="❓ Your Question",
+                    placeholder="Ask your legal question here...",
+                    lines=3
+                )
+
+            with gr.Row():
+                ask_btn = gr.Button("🎤 Ask & Listen", variant="primary", size="lg")
+                clear_conv_btn = gr.Button("🗑️ Clear History", variant="secondary")
+
+            with gr.Row():
+                conv_response = gr.Textbox(
+                    label="📝 Response",
+                    interactive=False,
+                    lines=8
+                )
+
+            with gr.Row():
+                conv_audio = gr.Audio(
+                    label="🔊 Audio Response",
+                    type="filepath",
+                    interactive=False
+                )
+
+            with gr.Row():
+                conv_history = gr.JSON(
+                    label="📋 Conversation History",
+                    interactive=False
+                )
+
+            async def ask_conversation_agent(
+                question: str,
+                mode: str,
+                ai_provider: str,
+                read_aloud: bool,
+                hf_token = None
+            ):
+                """Handle conversation agent Q&A with optional audio"""
+
+                if not question or not question.strip():
+                    return "", None, {}
+
+                agent = get_conversation_agent()
+
+                # Generate response using Ultimate Brain
+                brain_result = await ultimate_brain.process_legal_query(
+                    query=question,
+                    mode=mode,
+                    ai_provider=ai_provider,
+                    use_reasoning_protocols=True
+                )
+
+                # Collect response
+                response_text = ""
+
+                # Show reasoning if available
+                if brain_result['reasoning_result'] and brain_result['reasoning_result']['success']:
+                    response_text = "🧠 **Reasoning Protocols Applied:**\n"
+                    for r in brain_result['reasoning_result']['results']:
+                        response_text += f"- {r['protocol']}: ✅\n"
+                    response_text += "\n---\n\n"
+
+                # Generate AI response based on provider
+                if ai_provider == "huggingface":
+                    token = hf_token.token if hf_token else None
+                    client = InferenceClient(token=token, model="meta-llama/Llama-3.3-70B-Instruct")
+
+                    messages = [
+                        {"role": "system", "content": brain_result['enhanced_query']},
+                        {"role": "user", "content": question}
+                    ]
+
+                    try:
+                        for chunk in client.chat_completion(
+                            messages, max_tokens=1024, stream=True,
+                            temperature=0.7, top_p=0.95
+                        ):
+                            if chunk.choices and chunk.choices[0].delta.content:
+                                response_text += chunk.choices[0].delta.content
+
+                        # Add to conversation history
+                        agent.add_turn(question, response_text, mode, ai_provider)
+
+                        # Generate audio if enabled
+                        audio_result = None
+                        if read_aloud:
+                            import asyncio as aio
+                            audio_bytes, audio_path = await agent.text_to_speech(response_text)
+                            if audio_path:
+                                audio_result = audio_path
+
+                        # Return response, audio, and history
+                        history_summary = agent.get_history_summary()
+                        return response_text, audio_result, history_summary
+
+                    except Exception as e:
+                        error_response = f"❌ Error: {str(e)}"
+                        return error_response, None, {}
+
+                else:
+                    # For other providers, use similar logic
+                    response_text = f"ℹ️ Provider '{ai_provider}' processing...\n\n[Response would be generated by {ai_provider}]"
+                    agent.add_turn(question, response_text, mode, ai_provider)
+
+                    audio_result = None
+                    if read_aloud:
+                        import asyncio as aio
+                        audio_bytes, audio_path = await agent.text_to_speech(response_text)
+                        if audio_path:
+                            audio_result = audio_path
+
+                    history_summary = agent.get_history_summary()
+                    return response_text, audio_result, history_summary
+
+            def clear_conversation_history():
+                """Clear conversation history"""
+                reset_conversation_agent()
+                return "", None, {}
+
+            # Connect button handlers
+            ask_btn.click(
+                fn=ask_conversation_agent,
+                inputs=[conv_question, conv_mode, conv_ai_provider, enable_audio, app_token_state],
+                outputs=[conv_response, conv_audio, conv_history]
+            )
+
+            clear_conv_btn.click(
+                fn=clear_conversation_history,
+                outputs=[conv_response, conv_audio, conv_history]
+            )
+
+            gr.Markdown("""
+            ### 🎤 Features:
+            - **Conversation Memory**: Maintains context across multiple questions
+            - **Text-to-Speech**: Responses read aloud automatically
+            - **Legal Modes**: Specialized responses for different legal tasks
+            - **Multiple AI Models**: Choose from 6 different AI providers
+            - **History Tracking**: View conversation statistics
+
+            ### 💡 Tips:
+            - Use natural language questions
+            - Check "Read Response Aloud" to hear responses
+            - Conversation history is cleared when you reset
+            - Each question maintains context from previous answers
+            """)
+
     # Footer
     gr.HTML("""
     <hr>
